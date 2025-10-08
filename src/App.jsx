@@ -1,9 +1,17 @@
-import { useState } from "react";
+import React from "react";
+
+import Welcome from "./components/Welcome";
+import Signin from "./components/SignIn";
+import Signup from "./components/SignUp";
+import NotFound from "./components/NotFound";
 
 function App() {
   return (
     <>
-      <h1 className="bg-red-500">Hello</h1>
+      <Welcome />
+      {/* <Signin /> */}
+      {/* <Signup /> */}
+      {/* <NotFound /> */}
     </>
   );
 }
