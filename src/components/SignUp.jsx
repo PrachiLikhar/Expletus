@@ -1,10 +1,10 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React from "react";
+
 const Signup = () => {
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-indigo-100 via-white to-indigo-50 px-4">
-      <div className="bg-white shadow-2xl rounded-2xl w-full max-w-md p-8 border border-indigo-100">
-        <h2 className="text-3xl font-bold text-center text-indigo-700 mb-6">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-yellow-100 via-white to-yellow-50 px-4">
+      <div className="bg-white shadow-2xl rounded-2xl w-full max-w-md p-8 border border-yellow-100">
+        <h2 className="text-3xl font-bold text-center text-yellow-600 mb-6">
           Create an Account
         </h2>
 
@@ -16,7 +16,7 @@ const Signup = () => {
               name="name"
               placeholder="Enter your name"
               required
-              className="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-indigo-400 outline-none"
+              className="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-yellow-400 outline-none"
             />
           </div>
 
@@ -29,7 +29,7 @@ const Signup = () => {
               name="email"
               placeholder="Enter your email"
               required
-              className="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-indigo-400 outline-none"
+              className="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-yellow-400 outline-none"
             />
           </div>
 
@@ -42,19 +42,21 @@ const Signup = () => {
               name="password"
               placeholder="Enter your password"
               required
-              className="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-indigo-400 outline-none"
+              className="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-yellow-400 outline-none"
             />
           </div>
 
           <button
             type="submit"
-            className="w-full py-2 rounded-xl text-white bg-indigo-600 hover:bg-indigo-700 transition duration-300 font-semibold"
-          ></button>
+            className="w-full py-2 rounded-xl text-white bg-yellow-500 hover:bg-yellow-600 transition duration-300 font-semibold"
+          >
+            Sign Up
+          </button>
         </form>
 
         <p className="text-center text-sm text-gray-600 mt-4">
           Already have an account?{" "}
-          <a href="#" className="text-indigo-600 font-medium hover:underline">
+          <a href="/" className="text-yellow-600 font-medium hover:underline">
             Sign In
           </a>
         </p>

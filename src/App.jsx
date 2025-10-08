@@ -8,10 +8,10 @@ import NotFound from "./components/NotFound";
 function App() {
   return (
     <>
-      <Welcome />
+      {/* <Welcome /> */}
       {/* <Signin /> */}
       {/* <Signup /> */}
-      {/* <NotFound /> */}
+      <NotFound />
     </>
   );
 }
