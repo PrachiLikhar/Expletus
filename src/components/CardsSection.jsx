@@ -1,69 +1,119 @@
 import React from "react";
-import { FaStar } from "react-icons/fa";
+import { FaStar, FaStarHalfAlt, FaRegStar } from "react-icons/fa";
 
 export default function CardsSection() {
   const products = [
     {
-      image:
-        "https://images.unsplash.com/photo-1580910051074-cb3e51b7d90a?auto=format&fit=crop&w=500&q=80",
-      title: "Wireless Headphones",
-      price: "$49.99",
-      rating: 4,
+      name: "iPhone 15 Pro",
+      image: "https://via.placeholder.com/150",
+      price: 120000,
+      oldPrice: 130000,
+      rating: 4.5,
+      reviews: 120,
+      category: "Mobile",
+      desc: "Latest Apple iPhone with powerful A17 chip and Pro camera system.",
     },
     {
-      image:
-        "https://images.unsplash.com/photo-1606813908753-f5d6d2f8f6a6?auto=format&fit=crop&w=500&q=80",
-      title: "Smartwatch Series 5",
-      price: "$129.99",
-      rating: 5,
+      name: "Dell XPS 13",
+      image: "https://via.placeholder.com/150",
+      price: 95000,
+      oldPrice: 100000,
+      rating: 4.0,
+      reviews: 80,
+      category: "Laptop",
+      desc: "Compact and high-performance laptop suitable for work and study.",
     },
     {
-      image:
-        "https://images.unsplash.com/photo-1581276879432-15d6e3dc5f45?auto=format&fit=crop&w=500&q=80",
-      title: "Portable Speaker",
-      price: "$39.99",
-      rating: 4,
+      name: "Sony WH-1000XM5",
+      image: "https://via.placeholder.com/150",
+      price: 20000,
+      oldPrice: 22000,
+      rating: 4.7,
+      reviews: 50,
+      category: "Accessories",
+      desc: "Industry-leading noise cancelling headphones for immersive sound.",
     },
     {
-      image:
-        "https://images.unsplash.com/photo-1611162617210-3fdbf6b0fc6e?auto=format&fit=crop&w=500&q=80",
-      title: "Gaming Mouse",
-      price: "$29.99",
-      rating: 5,
+      name: "Samsung Galaxy S23",
+      image: "https://via.placeholder.com/150",
+      price: 70000,
+      oldPrice: 75000,
+      rating: 4.3,
+      reviews: 90,
+      category: "Mobile",
+      desc: "Flagship Samsung smartphone with amazing camera and display.",
     },
   ];
 
+  // Render stars
+  const renderStars = (rating) => {
+    const stars = [];
+    const fullStars = Math.floor(rating);
+    const halfStar = rating % 1 >= 0.5;
+    for (let i = 0; i < fullStars; i++)
+      stars.push(<FaStar key={i} className="text-yellow-400 inline" />);
+    if (halfStar)
+      stars.push(
+        <FaStarHalfAlt key="half" className="text-yellow-400 inline" />
+      );
+    while (stars.length < 5)
+      stars.push(
+        <FaRegStar key={stars.length} className="text-yellow-400 inline" />
+      );
+    return stars;
+  };
+
   return (
     <section className="bg-gray-900 text-white py-20">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8 text-center">
-        <h2 className="text-3xl md:text-4xl font-extrabold text-[#5DE23C] mb-12">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+        <h2 className="text-3xl md:text-4xl font-extrabold text-[#5DE23C] mb-12 text-center">
           Featured Products
         </h2>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
           {products.map((product, index) => (
             <div
               key={index}
-              className="bg-gray-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-[#5DE23C]/40 hover:scale-105 transform transition duration-300"
+              className="bg-gray-800 p-6 rounded-2xl shadow-lg hover:shadow-[#5DE23C]/30 hover:scale-105 transform transition duration-300"
             >
-              <img
-                src={product.image}
-                alt={product.title}
-                className="w-full h-48 object-cover"
-              />
-              <div className="p-4">
-                <h3 className="text-lg font-semibold mb-2">{product.title}</h3>
-                <p className="text-[#5DE23C] font-bold mb-2">{product.price}</p>
-                <div className="flex justify-center">
-                  {[...Array(5)].map((_, i) => (
-                    <FaStar
-                      key={i}
-                      className={`h-4 w-4 ${
-                        i < product.rating ? "text-yellow-400" : "text-gray-600"
-                      }`}
-                    />
-                  ))}
+              <div className="flex flex-col items-center">
+                {/* Product Image */}
+                <img
+                  src={product.image}
+                  alt={product.name}
+                  className="w-32 h-32 object-cover mb-4 rounded-lg hover:scale-105 transition duration-300"
+                />
+
+                {/* Product Name */}
+                <h3 className="text-lg font-bold mb-1 text-center">
+                  {product.name}
+                </h3>
+
+                {/* Category */}
+                <p className="text-green-400 text-sm mb-2">
+                  {product.category}
+                </p>
+
+                {/* Price */}
+                <p className="text-white font-semibold mb-2">
+                  ₹{product.price.toLocaleString()}{" "}
+                  <span className="line-through text-gray-400 text-sm ml-2">
+                    ₹{product.oldPrice.toLocaleString()}
+                  </span>
+                </p>
+
+                {/* Rating */}
+                <div className="mb-2">
+                  {renderStars(product.rating)}{" "}
+                  <span className="text-gray-400 text-sm ml-1">
+                    ({product.reviews})
+                  </span>
                 </div>
+
+                {/* Description */}
+                <p className="text-gray-400 text-sm text-center">
+                  {product.desc}
+                </p>
               </div>
             </div>
           ))}

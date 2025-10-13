@@ -7,30 +7,34 @@ import HeroSection from "./components/HeroSection";
 import Footer from "./components/Footer";
 import FeaturesSection from "./components/FeaturesSection";
 import CardsSection from "./components/CardsSection";
+import ProductAdmin from "./components/ProductAdmin";
 
 function App() {
   return (
-    <Router>
-      <Navbar />
-      <Routes>
-        {/* Home Page */}
-        <Route
-          path="/"
-          element={
-            <>
-              <HeroSection />
-              <FeaturesSection />
-              <CardsSection />
-              <Footer />
-            </>
-          }
-        />
+    // <Router>
+    //   <Navbar />
+    //   <Routes>
+    //     {/* Home Page */}
+    //     <Route
+    //       path="/"
+    //       element={
+    //         <>
+    //           <HeroSection />
+    //           <FeaturesSection />
+    //           <CardsSection />
+    //           <Footer />
+    //         </>
+    //       }
+    //     />
 
-        {/* Auth Pages */}
-        <Route path="/signin" element={<Signin />} />
-        <Route path="/signup" element={<Signup />} />
-      </Routes>
-    </Router>
+    //     {/* Auth Pages */}
+    //     <Route path="/signin" element={<Signin />} />
+    //     <Route path="/signup" element={<Signup />} />
+    //   </Routes>
+    // </Router>
+    <>
+      <ProductAdmin />
+    </>
   );
 }
 
