@@ -1,187 +1,64 @@
-import { useState } from "react";
-import { FaStar, FaStarHalfAlt, FaRegStar } from "react-icons/fa";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
-export default function ProductAdmin() {
-  const [products, setProducts] = useState([
-    {
-      id: 1,
-      name: "iPhone 15 Pro",
-      image: "https://via.placeholder.com/150",
-      price: 120000,
-      oldPrice: 130000,
-      rating: 4.5,
-      reviews: 120,
-      category: "Mobile",
-      desc: "Latest Apple iPhone with powerful A17 chip.",
-    },
-    {
-      id: 2,
-      name: "Dell XPS 13",
-      image: "https://via.placeholder.com/150",
-      price: 95000,
-      oldPrice: 100000,
-      rating: 4.0,
-      reviews: 80,
-      category: "Laptop",
-      desc: "Compact and high-performance laptop for work and study.",
-    },
-  ]);
+export default function SignIn() {
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-  const [newProduct, setNewProduct] = useState({
-    name: "",
-    image: "",
-    price: "",
-    oldPrice: "",
-    rating: "",
-    reviews: "",
-    category: "",
-    desc: "",
-  });
-
-  // Add Product
-  const handleAdd = () => {
-    if (!newProduct.name || !newProduct.price) return;
-    setProducts([...products, { ...newProduct, id: Date.now() }]);
-    setNewProduct({
-      name: "",
-      image: "",
-      price: "",
-      oldPrice: "",
-      rating: "",
-      reviews: "",
-      category: "",
-      desc: "",
-    });
-  };
-
-  // Delete Product
-  const handleDelete = (id) => {
-    setProducts(products.filter((p) => p.id !== id));
-  };
-
-  // Update Product
-  const handleUpdate = (id) => {
-    const updatedName = prompt("Enter new product name:");
-    const updatedPrice = prompt("Enter new product price:");
-    if (!updatedName || !updatedPrice) return;
-    setProducts(
-      products.map((p) =>
-        p.id === id ? { ...p, name: updatedName, price: updatedPrice } : p
-      )
-    );
-  };
-
-  // Render star ratings
-  const renderStars = (rating) => {
-    const stars = [];
-    const fullStars = Math.floor(rating);
-    const halfStar = rating % 1 >= 0.5;
-    for (let i = 0; i < fullStars; i++)
-      stars.push(<FaStar key={i} className="text-yellow-400 inline" />);
-    if (halfStar)
-      stars.push(
-        <FaStarHalfAlt key="half" className="text-yellow-400 inline" />
-      );
-    while (stars.length < 5)
-      stars.push(
-        <FaRegStar key={stars.length} className="text-yellow-400 inline" />
-      );
-    return stars;
-  };
+  function handleLogin(e) {
+    e.preventDefault();
+    if (!email || !password) {
+      alert("Please fill all fields");
+      return;
+    }
+    alert(`Logged in as ${email}`);
+    navigate("/"); // ya "/admin" agar admin page chahiye
+  }
 
   return (
-    <div className="p-6">
-      <h1 className="text-3xl font-bold mb-6">Manage Products</h1>
-
-      {/* Add Product Form */}
-      <div className="flex flex-col md:flex-row gap-2 mb-6">
-        <input
-          type="text"
-          placeholder="Product Name"
-          value={newProduct.name}
-          onChange={(e) =>
-            setNewProduct({ ...newProduct, name: e.target.value })
-          }
-          className="border p-2 rounded flex-1"
-        />
-        <input
-          type="text"
-          placeholder="Image URL"
-          value={newProduct.image}
-          onChange={(e) =>
-            setNewProduct({ ...newProduct, image: e.target.value })
-          }
-          className="border p-2 rounded flex-1"
-        />
-        <input
-          type="number"
-          placeholder="Price"
-          value={newProduct.price}
-          onChange={(e) =>
-            setNewProduct({ ...newProduct, price: e.target.value })
-          }
-          className="border p-2 rounded w-32"
-        />
-        <input
-          type="number"
-          placeholder="Old Price"
-          value={newProduct.oldPrice}
-          onChange={(e) =>
-            setNewProduct({ ...newProduct, oldPrice: e.target.value })
-          }
-          className="border p-2 rounded w-32"
-        />
-        <button
-          onClick={handleAdd}
-          className="bg-green-500 text-white px-4 py-2 rounded"
-        >
-          Add
-        </button>
-      </div>
-
-      {/* Product Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {products.map((product) => (
-          <div
-            key={product.id}
-            className="bg-gray-800 p-4 rounded-2xl shadow-lg hover:shadow-[#5DE23C]/30 hover:scale-105 transform transition duration-300"
-          >
-            <img
-              src={product.image}
-              alt={product.name}
-              className="w-full h-40 object-cover rounded mb-2"
+    <div className="min-h-screen flex items-center justify-center bg-[#121212] px-4">
+      <div className="bg-[#111111] p-8 rounded-2xl shadow-2xl w-full max-w-md border border-[#5DE23C]/30">
+        <h2 className="text-3xl font-bold text-center text-[#5DE23C] mb-6">
+          Sign In
+        </h2>
+        <form onSubmit={handleLogin} className="space-y-4">
+          <div>
+            <label className="block text-gray-300 mb-1">Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@example.com"
+              className="w-full px-4 py-2 rounded-xl bg-[#1A1A1A] border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-[#5DE23C]"
             />
-            <h2 className="text-lg font-bold">{product.name}</h2>
-            <p className="text-green-400 text-sm">{product.category}</p>
-            <p className="text-white font-semibold">
-              ₹{product.price}{" "}
-              <span className="line-through text-gray-400 text-sm ml-2">
-                ₹{product.oldPrice}
-              </span>
-            </p>
-            <div className="my-1">
-              {renderStars(product.rating)}{" "}
-              <span className="text-gray-400 text-sm ml-1">
-                ({product.reviews})
-              </span>
-            </div>
-            <p className="text-gray-400 text-sm">{product.desc}</p>
-            <div className="flex gap-2 mt-2">
-              <button
-                onClick={() => handleUpdate(product.id)}
-                className="bg-yellow-400 px-3 py-1 rounded"
-              >
-                Update
-              </button>
-              <button
-                onClick={() => handleDelete(product.id)}
-                className="bg-red-500 text-white px-3 py-1 rounded"
-              >
-                Delete
-              </button>
-            </div>
           </div>
-        ))}
+          <div>
+            <label className="block text-gray-300 mb-1">Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="********"
+              className="w-full px-4 py-2 rounded-xl bg-[#1A1A1A] border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-[#5DE23C]"
+            />
+          </div>
+          <button
+            type="submit"
+            className="w-full py-2 rounded-xl bg-[#5DE23C] text-black font-semibold hover:bg-[#4CC52F] transition"
+          >
+            Sign In
+          </button>
+        </form>
+        <p className="mt-4 text-sm text-gray-400 text-center">
+          Don't have an account?{" "}
+          <Link
+            to="/signup"
+            className="text-[#5DE23C] font-medium hover:underline"
+          >
+            Sign Up
+          </Link>
+        </p>
       </div>
     </div>
   );

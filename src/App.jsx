@@ -8,33 +8,39 @@ import Footer from "./components/Footer";
 import FeaturesSection from "./components/FeaturesSection";
 import CardsSection from "./components/CardsSection";
 import ProductAdmin from "./components/ProductAdmin";
+import TopCategories from "./components/TopCategories";
+import Testimonials from "./components/Testimonials";
+import Newsletter from "./components/Newsletter";
 
 function App() {
   return (
-    // <Router>
-    //   <Navbar />
-    //   <Routes>
-    //     {/* Home Page */}
-    //     <Route
-    //       path="/"
-    //       element={
-    //         <>
-    //           <HeroSection />
-    //           <FeaturesSection />
-    //           <CardsSection />
-    //           <Footer />
-    //         </>
-    //       }
-    //     />
+    <Router>
+      <Navbar />
+      <Routes>
+        {/* Home Page */}
+        <Route
+          path="/"
+          element={
+            <>
+              <HeroSection />
+              <TopCategories />
+              <FeaturesSection />
+              <CardsSection />
+              <Testimonials />
+              <Newsletter />
+              <Footer />
+            </>
+          }
+        />
 
-    //     {/* Auth Pages */}
-    //     <Route path="/signin" element={<Signin />} />
-    //     <Route path="/signup" element={<Signup />} />
-    //   </Routes>
-    // </Router>
-    <>
-      <ProductAdmin />
-    </>
+        {/* Auth Pages */}
+        <Route path="/signin" element={<Signin />} />
+        <Route path="/signup" element={<Signup />} />
+
+        {/* Admin Page */}
+        <Route path="/admin" element={<ProductAdmin />} />
+      </Routes>
+    </Router>
   );
 }
 
