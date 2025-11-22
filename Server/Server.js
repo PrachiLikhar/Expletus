@@ -1,56 +1,24 @@
-const express = require('express');
+import express from "express";
+import dotenv from "dotenv";
+import connectDB from "./config/db.js";
+import cors from "cors";
+import authRoutes from "./routes/authRoutes.js";
+import sellerRoutes from "./routes/sellerRoutes.js";
+import productRoutes from "./routes/productRoutes.js";
+import cookieParser from "cookie-parser";
+dotenv.config();
+connectDB();
+
+
 const app = express();
-const PORT = 5000;
+app.use(express.json());
+app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+app.use(cookieParser("SECRET_KEY"));
+app.use("/api/auth", authRoutes);
+app.use("/api/seller", sellerRoutes);
+app.use("/api/product", productRoutes);
+ 
 
-app.get('/',(req,res)=>{
-  try{
-    res.json({message:"Server sucessfully created"});
-  }
-  catch(error){
-    console.log('Error in first page:',error);
-    res.status(500).json({error:'Internal Server Error'});
-  }
-})
-// Home route
-app.get('/home', (req, res) => {
-  try {
-    res.status(200).json({
-      status: 200,
-      message: "Welcome to ElectroMart – Your One-Stop Electronics Store!",
-      data: {
-        storeName: "ElectroMart",
-        tagline: "Smart Tech, Smart Living.",
-         description: "Grab the hottest deals on mobiles, laptops, TVs, and more.",
-          }
-    });
-  } catch (error) {
-    console.error("Error in /home route:", error);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-});
-
-
-// About route
-app.get('/about', (req, res) => {
-  try {
-    res.json({ message: 'This is the About Page.' });
-  } catch (error) {
-    console.error('Error in /about route:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
-
-// Contact route
-app.get('/contact', (req, res) => {
-  try {
-    res.json({ message: 'This is the Contact Page.' });
-  } catch (error) {
-    console.error('Error in /contact route:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
-
-// Server start
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+app.listen(5000, () => {
+  console.log("Server running on port 5000");
 });

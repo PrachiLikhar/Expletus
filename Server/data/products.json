@@ -1,0 +1,12 @@
+[
+  { "id": 1, "name": "Laptop", "price": 50000, "category": "Electronics", "brand": "HP", "stock": 20, "rating": 4.5 },
+  { "id": 2, "name": "Phone", "price": 20000, "category": "Mobiles", "brand": "Samsung", "stock": 35, "rating": 4.3 },
+  { "id": 3, "name": "Headphones", "price": 3000, "category": "Accessories", "brand": "Boat", "stock": 50, "rating": 4.2 },
+  { "id": 4, "name": "Smartwatch", "price": 7000, "category": "Wearables", "brand": "Noise", "stock": 40, "rating": 4.1 },
+  { "id": 5, "name": "Tablet", "price": 25000, "category": "Electronics", "brand": "Apple", "stock": 15, "rating": 4.6 },
+  { "id": 6, "name": "Camera", "price": 45000, "category": "Electronics", "brand": "Canon", "stock": 12, "rating": 4.4 },
+  { "id": 7, "name": "Bluetooth Speaker", "price": 4000, "category": "Audio", "brand": "JBL", "stock": 30, "rating": 4.5 },
+  { "id": 8, "name": "Gaming Mouse", "price": 1500, "category": "Computer Accessories", "brand": "Logitech", "stock": 60, "rating": 4.7 },
+  { "id": 9, "name": "Keyboard", "price": 1200, "category": "Computer Accessories", "brand": "Dell", "stock": 55, "rating": 4.2 },
+  { "id": 10, "name": "Monitor", "price": 10000, "category": "Computer Accessories", "brand": "Acer", "stock": 25, "rating": 4.3 }
+]

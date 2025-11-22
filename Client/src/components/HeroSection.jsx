@@ -39,7 +39,7 @@ export default function HeroSection() {
         {/* Right: Product Image / Floating Cards */}
         <div className="lg:w-1/2 relative flex justify-center mt-10 lg:mt-0">
           <img
-            src="/images/hero-laptop.png" // Replace with your hero image
+            src="https://images.unsplash.com/photo-1496181133206-80ce9b88a853?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1171" // Replace with your hero image
             alt="Hero Product"
             className="w-full max-w-lg z-10"
           />

@@ -1,8 +1,8 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
-import Signup from "./components/SignUp";
-import Signin from "./components/SignIn";
+import Resister from "./components/register";
+import Login from "./components/Login";
 import HeroSection from "./components/HeroSection";
 import Footer from "./components/Footer";
 import FeaturesSection from "./components/FeaturesSection";
@@ -34,8 +34,8 @@ function App() {
         />
 
         {/* Auth Pages */}
-        <Route path="/signin" element={<Signin />} />
-        <Route path="/signup" element={<Signup />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Resister />} />
 
         {/* Admin Page */}
         <Route path="/admin" element={<ProductAdmin />} />

@@ -57,16 +57,21 @@ export default function Navbar() {
 
             {/* Buttons */}
             <Link
-              to="/signin"
+              to="/login"
               className="px-4 py-2 rounded-md bg-gradient-to-r from-[#5DE23C] to-[#4CC52F] text-black font-semibold hover:scale-105 transition transform"
             >
               Sign In
             </Link>
             <Link
-              to="/signup"
+              to="/register"
               className="px-4 py-2 rounded-md border-2 border-[#5DE23C] text-[#5DE23C] font-semibold hover:bg-[#5DE23C] hover:text-white transition"
             >
               Sign Up
+            </Link>
+            <Link to="/seller/dashboard">
+              <button className="bg-blue-600 text-white px-4 py-2 rounded-md">
+                Become a Seller
+              </button>
             </Link>
           </div>
 
@@ -133,7 +138,7 @@ export default function Navbar() {
           to="/signin"
           className="block w-full text-center bg-[#5DE23C] text-black px-4 py-2 rounded-md mt-4 hover:scale-105 transition transform"
         >
-          Sign In
+          Login
         </Link>
         <Link
           to="/signup"
