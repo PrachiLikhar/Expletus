@@ -10,7 +10,7 @@ import {
   FaEdit,
 } from "react-icons/fa";
 
-export default function ProductAdmin() {
+export default function AdminDashboard() {
   const [collapsed, setCollapsed] = useState(false);
   const [products, setProducts] = useState([
     {

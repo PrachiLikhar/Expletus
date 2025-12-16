@@ -1,5 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import {
   FaMobileAlt,
   FaLaptop,
@@ -19,6 +20,12 @@ const categories = [
 ];
 
 export default function TopCategoriesDark() {
+  const navigate = useNavigate();
+
+  const handleCategoryClick = (category) => {
+    navigate(`/products?category=${category}`);
+  };
+
   return (
     <section className="bg-black py-16 px-6 text-white">
       <div className="max-w-6xl mx-auto text-center">
@@ -30,9 +37,10 @@ export default function TopCategoriesDark() {
           {categories.map((cat, i) => (
             <motion.div
               key={i}
+              onClick={() => handleCategoryClick(cat.name)}
               whileHover={{ scale: 1.1, rotateY: 10 }}
               whileTap={{ scale: 0.95 }}
-              className="group relative bg-gradient-to-br from-[#5DE23C]/20 to-transparent p-[2px] rounded-2xl shadow-[0_0_20px_#5DE23C40] hover:shadow-[0_0_25px_#5DE23C90] transition-all duration-500"
+              className="cursor-pointer group relative bg-gradient-to-br from-[#5DE23C]/20 to-transparent p-[2px] rounded-2xl shadow-[0_0_20px_#5DE23C40] hover:shadow-[0_0_25px_#5DE23C90] transition-all duration-500"
             >
               <div className="bg-[#111111] rounded-2xl flex flex-col items-center justify-center py-10 hover:bg-[#0f0f0f] transition-all duration-500">
                 <div className="text-[#5DE23C] group-hover:scale-110 transition-transform duration-300">
@@ -43,7 +51,6 @@ export default function TopCategoriesDark() {
                 </p>
               </div>
 
-              {/* Neon Border Glow Effect */}
               <div className="absolute inset-0 rounded-2xl blur-2xl opacity-0 group-hover:opacity-40 bg-[#5DE23C]/30 transition-all duration-500"></div>
             </motion.div>
           ))}

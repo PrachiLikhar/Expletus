@@ -1,8 +1,8 @@
 import { useState, useContext } from "react";
 import { StoreContext } from "../context/StoreContext";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
-const Register = () => {
+const Signup = () => {
   const { register } = useContext(StoreContext);
   const navigate = useNavigate();
 
@@ -10,28 +10,45 @@ const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+  const [success, setSuccess] = useState(false); // NEW
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-
     const result = await register(name, email, password);
-
     setLoading(false);
 
-    if (result?.message === "User Registered Successfully") {
-      alert("Registered Successfully 🎉");
-      navigate("/signin"); // redirect to login page
+    if (result?.user) {
+      setSuccess(true); // Show success popup
+
+      setTimeout(() => {
+        navigate("/"); // Auto redirect in 2 sec
+      }, 2000);
     } else {
-      alert(result?.message || "Registration Failed!");
+      setErrorMsg(result?.message || "Signup failed");
     }
   };
 
   return (
     <div className="min-h-screen flex justify-center items-center bg-gradient-to-r from-black via-gray-900 to-black">
-      <div className="backdrop-blur-xl bg-white/10 p-10 rounded-3xl border border-white/20 shadow-2xl w-full max-w-md animate-fade-in">
+      <div className="backdrop-blur-xl bg-white/10 p-10 rounded-3xl border border-white/20 shadow-2xl w-full max-w-md">
+        {/* Error Message */}
+        {errorMsg && (
+          <p className="text-center mb-4 bg-red-600 text-white py-2 rounded-xl">
+            {errorMsg}
+          </p>
+        )}
+
+        {/* SUCCESS POPUP */}
+        {success && (
+          <div className="mb-4 p-4 rounded-xl bg-green-600/20 border border-green-400 text-green-300 text-center animate-pulse">
+            🎉 Account Created Successfully!
+          </div>
+        )}
+
         <h2 className="text-4xl font-bold text-center text-[#5DE23C] mb-6 tracking-wide">
-          Create Account ✨
+          Sign Up ✨
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-5">
@@ -70,7 +87,7 @@ const Register = () => {
 
           <button
             type="submit"
-            className="w-full py-3 rounded-xl bg-[#5DE23C] text-black font-semibold text-lg tracking-wide hover:bg-[#4CC52F] transition-all"
+            className="w-full py-3 rounded-xl bg-[#5DE23C] text-black font-semibold text-lg hover:bg-[#4CC52F]"
           >
             {loading ? "Creating Account..." : "Sign Up"}
           </button>
@@ -78,8 +95,8 @@ const Register = () => {
 
         <p className="mt-5 text-center text-gray-300">
           Already have an account?{" "}
-          <Link to="/signin" className="text-[#5DE23C] hover:underline">
-            Sign In
+          <Link to="/login" className="text-[#5DE23C] hover:underline">
+            Login
           </Link>
         </p>
       </div>
@@ -87,4 +104,4 @@ const Register = () => {
   );
 };
 
-export default Register;
+export default Signup;
