@@ -261,4 +261,64 @@ export const editProduct = async (req, res) => {
   }
 };
 
+//========get all selller================
+export const getAllSellers = async (req, res) => {
+  try {
+    const sellers = await Seller.find().select("-password");
+
+    res.status(200).json({
+      success: true,
+      count: sellers.length,
+      sellers,
+    });
+  } catch (error) {
+    console.error("GET SELLERS ERROR:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+};
+
+
+
+// 2. Approve Seller
+export const approveSeller = async (req, res) => {
+  try {
+    const seller = await Seller.findById(req.params.id);
+    if (!seller) {
+      return res.status(404).json({ success: false, message: "Seller not found" });
+    }
+
+    seller.isApproved = true;
+    await seller.save();
+
+    res.status(200).json({ success: true, message: "Seller Approved successfully!", seller });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Update Failed", error: error.message });
+  }
+};
+
+// 3. Toggle Ban/Unban Seller
+export const toggleBanSeller = async (req, res) => {
+  try {
+    const seller = await Seller.findById(req.params.id);
+    if (!seller) {
+      return res.status(404).json({ success: false, message: "Seller not found" });
+    }
+
+    seller.isBlocked = !seller.isBlocked;
+    await seller.save();
+
+    res.status(200).json({ 
+      success: true, 
+      message: seller.isBlocked ? "Seller Banned" : "Seller Unbanned", 
+      seller 
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Operation Failed", error: error.message });
+  }
+};
+
+
 

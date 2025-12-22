@@ -26,35 +26,8 @@ export default function CardsSection() {
     }
   }, [category]);
 
-  /* ================= ADD TO CART ================= */
-  // const handleAddToCart = async (product) => {
-  //   try {
-  //     const res = await fetch("http://localhost:5000/api/cart/add", {
-  //       method: "POST",
-  //       credentials: "include", // 🔥 COOKIE TOKEN
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify({ productId: product._id }),
-  //     });
+  /*================= handle add to cart================*/
 
-  //     const data = await res.json();
-
-  //     if (res.status === 401) {
-  //       navigate("/login"); // ❌ login nahi
-  //       return;
-  //     }
-
-  //     if (res.ok) {
-  //       alert("Added to cart");
-  //       updateCartCount();
-  //     } else {
-  //       alert(data.message);
-  //     }
-  //   } catch (err) {
-  //     console.log(err);
-  //   }
-  // };
   const handleAddToCart = async (product) => {
     try {
       const res = await fetch("http://localhost:5000/api/cart/add", {
@@ -66,19 +39,22 @@ export default function CardsSection() {
         body: JSON.stringify({ productId: product._id }),
       });
 
+      // ❌ NOT LOGIN
       if (res.status === 401) {
         navigate("/login");
         return;
       }
 
+      const data = await res.json();
+
       if (!res.ok) {
-        const data = await res.json();
         alert(data.message);
         return;
       }
 
-      // ✅ SUCCESS
-      navigate("/cart");
+      // ✅ LOGIN + SUCCESS
+      setCartCount((prev) => prev + 1); // 🔥 navbar cart update
+      // navigate("/cart"); // optional
     } catch (err) {
       console.log("Add to cart error:", err);
     }
@@ -164,7 +140,8 @@ export default function CardsSection() {
                 <img
                   src={product.image}
                   alt={product.name}
-                  className="w-32 h-32 object-cover mb-4 rounded-lg"
+                  onClick={() => navigate(`/product/${product._id}`)}
+                  className="w-32 h-32 object-cover mb-4 rounded-lg cursor-pointer hover:scale-105 transition"
                 />
 
                 <h3 className="text-lg font-bold mb-1">{product.name}</h3>
@@ -209,5 +186,6 @@ export default function CardsSection() {
         </div>
       </div>
     </section>
+   
   );
 }

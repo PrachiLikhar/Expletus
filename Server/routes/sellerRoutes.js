@@ -8,7 +8,7 @@ import {
   logoutSeller,
   getSellerProfile,
   updateSellerProfile,
-  deleteProduct,editProduct
+  deleteProduct,editProduct,getAllSellers,approveSeller,toggleBanSeller
 } from "../controllers/sellerController.js";
 
 import {
@@ -53,6 +53,12 @@ router.post(
   upload.single("image"),
   editProduct
 );
+
+
+router.get("/all", getAllSellers);
+
+router.put("/approve/:id", approveSeller);
+router.put("/ban/:id", toggleBanSeller);
 
 
 export default router;

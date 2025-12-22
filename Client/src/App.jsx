@@ -19,7 +19,7 @@ import AdminRegister from "./components/adminregister";
 import EditProduct from "./components/EditProduct";
 import ProductsPage from "./components/Products";
 import CartPage from "./components/CartPage";
-// import Dashboard from "./pages/Dashboard";
+import ProductDetails from "./components/ProductDetails";
 
 // ⭐ Add this new import
 import UserDashboard from "./components/UserDashboard";
@@ -62,6 +62,7 @@ function App() {
         <Route path="/edit-product/:id" element={<EditProduct />} />
         <Route path="/products" element={<ProductsPage />} />
         <Route path="/cart" element={<CartPage />} />
+        <Route path="/product/:id" element={<ProductDetails />} />
 
         {/* Admin Routes  */}
         <Route path="/admin-login" element={<AdminLogin />} />

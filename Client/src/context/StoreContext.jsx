@@ -2,25 +2,48 @@ import { createContext, useState, useEffect } from "react";
 
 export const StoreContext = createContext();
 
+const API_BASE = "http://localhost:5000";
+
 export const StoreProvider = ({ children }) => {
+  // ================= AUTH STATES =================
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isSeller, setIsSeller] = useState(false);
   const [user, setUser] = useState(null);
 
+  // ================= PRODUCT STATES =================
   const [products, setProducts] = useState([]);
-  const [loadingProducts, setLoadingProducts] = useState(true);
+  const [loadingProducts, setLoadingProducts] = useState(false);
 
-  const [cartCount, setCartCount] = useState(0);
-  const [userToken, setUserToken] = useState(
-    localStorage.getItem("token") || ""
+  // ================= CART =================
+  const [cartCount, setCartCount] = useState(
+    Number(localStorage.getItem("cartCount")) || 0
   );
 
-  const API_BASE = "http://localhost:5000"; // <-- apna backend URL use karo
+  // ================= SYNC CART COUNT =================
+  useEffect(() => {
+    localStorage.setItem("cartCount", cartCount);
+  }, [cartCount]);
 
-  // --------------------------
-  // //   // LOGIN FUNCTION
-  // //   // --------------------------
+  // ================= RESTORE AUTH ON REFRESH =================
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const seller = localStorage.getItem("isSeller");
+    const storedUser = localStorage.getItem("user");
+
+    if (token && storedUser) {
+      setIsLoggedIn(true);
+      setIsSeller(seller === "true");
+      setUser(JSON.parse(storedUser));
+    } else {
+      setIsLoggedIn(false);
+      setIsSeller(false);
+      setUser(null);
+    }
+  }, []);
+
+  // ================= LOGIN =================
   const login = async (email, password) => {
-    const res = await fetch("http://localhost:5000/api/auth/login", {
+    const res = await fetch(`${API_BASE}/api/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -28,17 +51,23 @@ export const StoreProvider = ({ children }) => {
     });
 
     const data = await res.json();
-    if (data.user) {
-      setIsLoggedIn(true);
+
+    if (data.user && data.token) {
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("isSeller", data.user.role === "seller");
+      localStorage.setItem("user", JSON.stringify(data.user)); // 🔥 IMPORTANT
+
       setUser(data.user);
+      setIsLoggedIn(true);
+      setIsSeller(data.user.role === "seller");
     }
+
     return data;
   };
 
-  // REGISTER
-  // --------------------------
+  // ================= REGISTER =================
   const register = async (name, email, password) => {
-    const res = await fetch("http://localhost:5000/api/auth/register", {
+    const res = await fetch(`${API_BASE}/api/auth/register`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -47,123 +76,38 @@ export const StoreProvider = ({ children }) => {
 
     return await res.json();
   };
-  // Logout
-  // --------------------------
+
+  // ================= LOGOUT =================
   const logout = async () => {
-    await fetch("http://localhost:5000/api/auth/logout", {
+    await fetch(`${API_BASE}/api/auth/logout`, {
       method: "POST",
       credentials: "include",
     });
 
+    localStorage.clear();
     setIsLoggedIn(false);
+    setIsSeller(false);
     setUser(null);
+    setCartCount(0);
   };
 
-  // -------------------------------------------------------------
-  // SIGNUP FUNCTION
-  // -------------------------------------------------------------
-  const signupUser = async (name, email, password) => {
-    try {
-      const res = await fetch(`${API_BASE}/auth/signup`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
-      });
-
-      const data = await res.json();
-      if (!data.success) return alert(data.message || "Signup failed");
-
-      return true;
-    } catch (error) {
-      console.error("Signup error:", error);
-      return false;
-    }
-  };
-
-  // -------------------------------------------------------------
-  // FETCH PRODUCTS
-  // -------------------------------------------------------------
+  // ================= FETCH ALL PRODUCTS =================
   const fetchProducts = async () => {
     try {
       setLoadingProducts(true);
       const res = await fetch(`${API_BASE}/api/products`);
       const data = await res.json();
-
       setProducts(data.products || []);
+    } catch (err) {
+      console.log("Product fetch error:", err);
+    } finally {
       setLoadingProducts(false);
-    } catch (error) {
-      setLoadingProducts(false);
-      console.error("Fetch products error:", error);
     }
   };
-  // const fetchProducts = async () => {
-  //   setLoadingProducts(true);
-  //   const res = await fetch(`${API_BASE}/api/products`);
-  //   const data = await res.json();
-  //   setProducts(data.products || []);
-  //   setLoadingProducts(false);
-  // };
 
   useEffect(() => {
     fetchProducts();
   }, []);
-  /* ================= FETCH ALL PRODUCTS ================= */
-  //  const fetchAllProducts = async () => {
-  //   try {
-  //     setLoadingProducts(true);
-
-  //     const res = await fetch(`${API_BASE}/api/products`);
-  //     if (!res.ok) throw new Error("Backend not running");
-
-  //     const data = await res.json();
-  //     setProducts(data.products || []);
-  //   } catch (error) {
-  //     console.error("❌ Backend not reachable:", error.message);
-  //   } finally {
-  //     setLoadingProducts(false);
-  //   }
-  // };
-
-  /* ================= FETCH BY CATEGORY ================= */
-  // const fetchProductsByCategory = async (category) => {
-  //   try {
-  //     setLoadingProducts(true);
-
-  //     const res = await fetch(
-  //       `${API_BASE}/api/products?category=${encodeURIComponent(category)}`
-  //     );
-  //     if (!res.ok) throw new Error("Backend not running");
-
-  //     const data = await res.json();
-  //     setProducts(data.products || []);
-  //   } catch (error) {
-  //     console.error("❌ Category fetch failed:", error.message);
-  //   } finally {
-  //     setLoadingProducts(false);
-  //   }
-  // };
-
-  /* ================= CART COUNT ================= */
-  // const updateCartCount = async () => {
-  //   try {
-  //     const res = await fetch(`${API_BASE}/api/cart/count`, {
-  //       credentials: "include",
-  //     });
-  //     if (!res.ok) return;
-
-  //     const data = await res.json();
-  //     setCartCount(data.count || 0);
-  //   } catch (error) {
-  //     console.log("Cart count error:", error);
-  //   }
-  // };
-
-  /* ================= INITIAL LOAD ================= */
-  useEffect(() => {
-    fetchAllProducts();
-    updateCartCount();
-  }, []);
-
   const fetchAllProducts = async () => {
     try {
       setLoadingProducts(true);
@@ -176,158 +120,77 @@ export const StoreProvider = ({ children }) => {
       setLoadingProducts(false);
     }
   };
-  // const fetchAllProducts = async () => {
-  //   try {
-  //     setLoadingProducts(true);
 
-  //     const res = await fetch(`${API_BASE}/api/products`);
-  //     if (!res.ok) throw new Error("Backend not reachable");
-
-  //     const data = await res.json();
-  //     setProducts(data.products || []);
-  //   } catch (error) {
-  //     console.error("❌ Fetch products failed:", error);
-  //   } finally {
-  //     setLoadingProducts(false);
-  //   }
-  // };
-
-  // const fetchProductsByCategory = async (category) => {
-  //   setLoadingProducts(true);
-
-  //   try {
-  //     const res = await fetch(
-  //       `http://localhost:5000/api/products?category=${encodeURIComponent(
-  //         category
-  //       )}`
-  //     );
-
-  //     const data = await res.json();
-  //     setProducts(data.products || []); // 🔥 MUST update products
-  //   } catch (error) {
-  //     console.log("Category fetch error:", error);
-  //   } finally {
-  //     setLoadingProducts(false);
-  //   }
-  // };
+  // ================= FETCH BY CATEGORY =================
   const fetchProductsByCategory = async (category) => {
     try {
       setLoadingProducts(true);
-
       const res = await fetch(
         `${API_BASE}/api/products?category=${encodeURIComponent(category)}`
       );
-      if (!res.ok) throw new Error("Backend not reachable");
-
       const data = await res.json();
       setProducts(data.products || []);
-    } catch (error) {
-      console.error("❌ Category fetch failed:", error);
+    } catch (err) {
+      console.log("Category fetch error:", err);
     } finally {
       setLoadingProducts(false);
     }
   };
 
-  // -------------------------------------------------------------
-  // CART COUNT (increase/decrease)
-  // -------------------------------------------------------------
-  // const updateCartCount = async (productId) => {
-  //   if (!userToken) return alert("Please login first!");
-
-  //   try {
-  //     const res = await fetch(`${API_BASE}/cart/add`, {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         Authorization: `Bearer ${userToken}`,
-  //       },
-  //       body: JSON.stringify({ productId }),
-  //     });
-
-  //     const data = await res.json();
-  //     if (!data.success) return alert(data.message);
-
-  //     setCartCount(data.cartCount); // backend cart count return karega
-  //   } catch (error) {
-  //     console.error("Cart update error:", error);
-  //   }
-  // };
+  // ================= CART COUNT FROM BACKEND =================
   const updateCartCount = async () => {
     try {
       const res = await fetch(`${API_BASE}/api/cart/count`, {
         credentials: "include",
       });
 
-      if (!res.ok) return;
+      if (!res.ok) {
+        setCartCount(0);
+        return;
+      }
 
       const data = await res.json();
       setCartCount(data.count || 0);
-    } catch (error) {
-      console.log("Cart count error:", error);
+    } catch (err) {
+      console.log("Cart count error:", err);
     }
   };
 
   useEffect(() => {
-    fetchAllProducts();
-    if (userToken) {
-      updateCartCount(); // Fetch count only if user might be logged in
-    }
-  }, [userToken]);
+    if (isLoggedIn) updateCartCount();
+  }, [isLoggedIn]);
 
-  // -------------------------------------------------------------
-  // AUTO LOGIN IF TOKEN EXISTS
-  // -------------------------------------------------------------
-  useEffect(() => {
-    if (userToken) {
-      setIsLoggedIn(true);
-      // Future: decode JWT for user info
-    }
-  }, [userToken]);
-
-  // -------------------------------------------------------------
-  // FETCH PRODUCTS ON LOAD
-  // -------------------------------------------------------------
-  useEffect(() => {
-    fetchProducts();
-  }, []);
-
-  // =====  sellerLOGOUT =====
+  ////====seller logout============
   const handleLogout = async () => {
-    try {
-      await fetch("http://localhost:5000/api/seller/logout", {
-        method: "POST",
-        credentials: "include", // ⭐ VERY IMPORTANT (cookie clear ke liye)
-      });
-
-      localStorage.removeItem("sellerToken"); // optional
-      window.location.href = "/seller-login"; // ya "/"
-    } catch (error) {
-      console.log("Logout error:", error);
-    }
+    await fetch(`${API_BASE}/logout`, {
+      method: "POST",
+      credentials: "include",
+    });
+    window.location.href = "/seller-login";
   };
 
-  // -------------------------------------------------------------
-  // PROVIDER VALUE
-  // -------------------------------------------------------------
+  // ================= PROVIDER =================
   return (
     <StoreContext.Provider
       value={{
         isLoggedIn,
+        isSeller,
         user,
-        login,
-        signupUser,
-        register,
+
         products,
         loadingProducts,
 
         cartCount,
+        setCartCount,
         updateCartCount,
-        handleLogout,
-        userToken,
+
+        login,
+        register,
         logout,
-        fetchAllProducts,
+        fetchProducts,
         fetchProductsByCategory,
-        // ★ IMPORTANT: now available for SellerDashboard
+        fetchAllProducts,
+        handleLogout,
       }}
     >
       {children}

@@ -1,538 +1,566 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import {
   FaBars,
-  FaBoxOpen,
-  FaPlus,
   FaClipboardList,
+  FaUsers,
+  FaUserTie,
   FaCog,
-  FaTrashAlt,
-  FaEdit,
+  FaChartLine,
+  FaSignOutAlt,
+  FaSearch,
+  FaBoxOpen,
+  FaWallet,
+  FaCheck,
+  FaEye,
+  FaBan,
+  FaUnlock,
 } from "react-icons/fa";
 
 export default function AdminDashboard() {
   const [collapsed, setCollapsed] = useState(false);
-  const [products, setProducts] = useState([
-    {
-      id: 1,
-      name: "iPhone 15 Pro",
-      image: "https://via.placeholder.com/150",
-      price: 120000,
-      oldPrice: 130000,
-      stock: 10,
-      rating: 4.5,
-      reviews: 120,
-      category: "Mobile",
-      desc: "Latest Apple iPhone with powerful A17 chip.",
-    },
-    {
-      id: 2,
-      name: "Samsung S24 Ultra",
-      image: "https://via.placeholder.com/150",
-      price: 95000,
-      oldPrice: 105000,
-      stock: 8,
-      rating: 4.6,
-      reviews: 80,
-      category: "Mobile",
-      desc: "Flagship Samsung phone with cutting-edge camera.",
-    },
-    {
-      id: 3,
-      name: "Sony WH-1000XM5",
-      image: "https://via.placeholder.com/150",
-      price: 20000,
-      oldPrice: 22000,
-      stock: 15,
-      rating: 4.7,
-      reviews: 50,
-      category: "Accessories",
-      desc: "Industry-leading noise cancelling headphones for immersive sound.",
-    },
-  ]);
+  const [active, setActive] = useState("dashboard");
 
-  const [showAdd, setShowAdd] = useState(false);
-  const [editingProduct, setEditingProduct] = useState(null);
-  const [newProduct, setNewProduct] = useState({
-    name: "",
-    image: "",
-    price: "",
-    oldPrice: "",
-    stock: "",
-    rating: "",
-    reviews: "",
-    category: "",
-    desc: "",
-  });
-  const [query, setQuery] = useState("");
+  /* ================= STATES ================= */
+  const [users, setUsers] = useState([]);
+  const [sellers, setSellers] = useState([]);
+  const [orders, setOrders] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [showProducts, setShowProducts] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  const filtered = products.filter((p) =>
-    p.name.toLowerCase().includes(query.toLowerCase())
-  );
+  /* ================= SEARCH STATES ================= */
+  const [userSearch, setUserSearch] = useState("");
+  const [sellerSearch, setSellerSearch] = useState("");
 
-  // Dynamic categories from current products
-  const categories = [...new Set(products.map((p) => p.category))];
+  /* ================= FETCH FUNCTIONS ================= */
+  const fetchUsers = useCallback(async () => {
+    try {
+      const res = await fetch("http://localhost:5000/api/auth/all", {
+        credentials: "include",
+      });
+      const data = await res.json();
+      setUsers(data || []);
+    } catch (err) {
+      console.error("Error fetching users");
+    }
+  }, []);
 
-  // Add new product
-  function handleAddProduct(e) {
-    e.preventDefault();
-    if (!newProduct.name || !newProduct.category) return;
-    const id = products.length + 1;
-    setProducts([...products, { id, ...newProduct }]);
-    setNewProduct({
-      name: "",
-      image: "",
-      price: "",
-      oldPrice: "",
-      stock: "",
-      rating: "",
-      reviews: "",
-      category: "",
-      desc: "",
-    });
-    setShowAdd(false);
-  }
+  const fetchSellers = useCallback(async () => {
+    try {
+      const res = await fetch("http://localhost:5000/api/seller/all", {
+        credentials: "include",
+      });
+      const data = await res.json();
+      setSellers(data.sellers || []);
+    } catch (err) {
+      console.error("Error fetching sellers");
+    }
+  }, []);
 
-  // Edit product
-  function handleEditProduct(p) {
-    setEditingProduct(p);
-  }
+  const fetchOrders = useCallback(async () => {
+    try {
+      const res = await fetch("http://localhost:5000/api/orders/all", {
+        credentials: "include",
+      });
+      const data = await res.json();
+      setOrders(data || []);
+    } catch (err) {
+      console.error("Error fetching orders");
+    }
+  }, []);
 
-  function handleUpdateProduct(e) {
-    e.preventDefault();
-    setProducts(
-      products.map((p) => (p.id === editingProduct.id ? editingProduct : p))
+  /* ================= MASTER FETCH LOGIC ================= */
+  useEffect(() => {
+    const loadInitialData = async () => {
+      setLoading(true);
+      await Promise.all([fetchUsers(), fetchSellers(), fetchOrders()]);
+      setLoading(false);
+    };
+    loadInitialData();
+  }, [fetchUsers, fetchSellers, fetchOrders]);
+
+  useEffect(() => {
+    if (active === "users") fetchUsers();
+    if (active === "sellers") fetchSellers();
+    if (active === "orders") fetchOrders();
+  }, [active, fetchUsers, fetchSellers, fetchOrders]);
+
+  /* ================= ACTIONS ================= */
+  const handleApprove = async (id) => {
+    if (!window.confirm("Are you sure you want to approve this seller?"))
+      return;
+    try {
+      const res = await fetch(
+        `http://localhost:5000/api/seller/approve/${id}`,
+        {
+          method: "PUT",
+          credentials: "include",
+        }
+      );
+      const data = await res.json();
+      if (data.success) {
+        setSellers((prev) =>
+          prev.map((s) => (s._id === id ? { ...s, isApproved: true } : s))
+        );
+        alert("Seller has been approved!");
+      }
+    } catch (err) {
+      alert("Error approving seller");
+    }
+  };
+
+  const handleBanToggle = async (id, currentStatus) => {
+    const action = currentStatus ? "Unban" : "Ban";
+    if (!window.confirm(`Are you sure you want to ${action} this seller?`))
+      return;
+    try {
+      const res = await fetch(`http://localhost:5000/api/seller/ban/${id}`, {
+        method: "PUT",
+        credentials: "include",
+      });
+      const data = await res.json();
+      if (data.success) {
+        setSellers((prev) =>
+          prev.map((s) =>
+            s._id === id ? { ...s, isBlocked: data.seller.isBlocked } : s
+          )
+        );
+      }
+    } catch (err) {
+      alert("Error processing request");
+    }
+  };
+
+  const viewProducts = async (id) => {
+    try {
+      const res = await fetch(
+        `http://localhost:5000/api/seller/products/${id}`
+      );
+      const data = await res.json();
+      setProducts(data.products || []);
+      setShowProducts(true);
+    } catch (err) {
+      alert("Error fetching products");
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="h-screen bg-[#0a0a0a] flex items-center justify-center text-[#5DE23C]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-[#5DE23C]"></div>
+      </div>
     );
-    setEditingProduct(null);
-  }
-
-  // Delete product
-  function handleDelete(id) {
-    setProducts(products.filter((p) => p.id !== id));
   }
 
   return (
-    <div className="min-h-screen flex bg-gray-100">
-      {/* Sidebar */}
-      <motion.aside
-        animate={{ width: collapsed ? "80px" : "250px" }}
-        className="bg-[#121212] text-white p-4 flex flex-col shadow-lg transition-all duration-300"
+    <div className="flex h-screen bg-[#0a0a0a] text-white font-sans">
+      {/* SIDEBAR */}
+      <motion.div
+        animate={{ width: collapsed ? 80 : 260 }}
+        className="bg-black border-r border-white/10 flex flex-col z-20"
       >
-        <div className="flex items-center justify-between mb-6">
+        <div className="p-5 flex justify-between items-center">
           {!collapsed && (
-            <h2 className="text-[#5DE23C] font-bold text-lg">Admin</h2>
+            <h2 className="text-[#5DE23C] font-extrabold text-xl tracking-tighter italic">
+              Electro
+            </h2>
           )}
-          <button onClick={() => setCollapsed(!collapsed)}>
-            <FaBars className="text-[#5DE23C] text-xl" />
-          </button>
-        </div>
-
-        <div className="flex flex-col items-center mb-4">
-          <img
-            src="https://via.placeholder.com/70"
-            alt="Admin"
-            className="rounded-full border-2 border-[#5DE23C]"
+          <FaBars
+            onClick={() => setCollapsed(!collapsed)}
+            className="cursor-pointer text-[#5DE23C] text-xl"
           />
-          {!collapsed && (
-            <h3 className="mt-2 text-sm font-semibold text-[#5DE23C]">
-              Prachi Likhar
-            </h3>
-          )}
         </div>
 
-        <nav className="flex-1 space-y-3">
-          {[
-            { icon: <FaBoxOpen />, label: "Products" },
-            {
-              icon: <FaPlus />,
-              label: "Add Product",
-              onClick: () => setShowAdd(true),
-            },
-            { icon: <FaClipboardList />, label: "Orders" },
-            { icon: <FaCog />, label: "Settings" },
-          ].map((item, i) => (
-            <motion.div
-              key={i}
-              whileHover={{ scale: 1.05, backgroundColor: "#5DE23C20" }}
-              className="flex items-center gap-3 p-2 rounded-md cursor-pointer transition"
-              onClick={item.onClick}
-            >
-              <span className="text-[#5DE23C] text-lg">{item.icon}</span>
-              {!collapsed && <span>{item.label}</span>}
-            </motion.div>
-          ))}
+        <nav className="flex-1 mt-4">
+          <SidebarItem
+            icon={<FaChartLine />}
+            label="Dashboard"
+            active={active}
+            setActive={setActive}
+            collapsed={collapsed}
+          />
+          <SidebarItem
+            icon={<FaUsers />}
+            label="Users"
+            active={active}
+            setActive={setActive}
+            collapsed={collapsed}
+          />
+          <SidebarItem
+            icon={<FaUserTie />}
+            label="Sellers"
+            active={active}
+            setActive={setActive}
+            collapsed={collapsed}
+          />
+          <SidebarItem
+            icon={<FaClipboardList />}
+            label="Orders"
+            active={active}
+            setActive={setActive}
+            collapsed={collapsed}
+          />
+          <SidebarItem
+            icon={<FaBoxOpen />}
+            label="Products"
+            active={active}
+            setActive={setActive}
+            collapsed={collapsed}
+          />
+          <SidebarItem
+            icon={<FaCog />}
+            label="Settings"
+            active={active}
+            setActive={setActive}
+            collapsed={collapsed}
+          />
         </nav>
-      </motion.aside>
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col">
-        {/* Topbar with Search */}
-        <header className="flex justify-between items-center bg-white border-b p-4 shadow-sm sticky top-0 z-20">
-          <h1 className="text-xl font-semibold text-gray-800">
-            Product Management
-          </h1>
+        <div className="p-4 border-t border-white/10">
+          <SidebarItem
+            icon={<FaSignOutAlt />}
+            label="Logout"
+            danger
+            setActive={() => alert("Logging out...")}
+            collapsed={collapsed}
+          />
+        </div>
+      </motion.div>
 
-          <div className="relative w-64">
-            <motion.input
-              whileFocus={{ scale: 1.05 }}
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search products..."
-              className="border border-[#5DE23C] rounded px-3 py-2 text-sm w-full outline-none focus:ring-2 focus:ring-[#5DE23C]"
-            />
-            {query && filtered.length > 0 && (
-              <ul className="absolute top-full left-0 w-full bg-white border border-gray-200 rounded shadow mt-1 z-10 max-h-48 overflow-y-auto">
-                {filtered.map((p) => (
-                  <li
-                    key={p.id}
-                    onClick={() => setQuery(p.name)}
-                    className="px-3 py-2 hover:bg-[#5DE23C20] cursor-pointer"
+      {/* MAIN CONTENT */}
+      <div className="flex-1 p-8 overflow-auto">
+        {active === "dashboard" && (
+          <section>
+            <h2 className="text-3xl font-bold mb-6 text-[#5DE23C]">
+              Business Overview
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+              <StatsCard
+                label="Total Users"
+                value={users.length}
+                icon={<FaUsers />}
+                color="text-blue-500"
+              />
+              <StatsCard
+                label="Total Sellers"
+                value={sellers.length}
+                icon={<FaUserTie />}
+                color="text-purple-500"
+              />
+              <StatsCard
+                label="Active Orders"
+                value={orders.length}
+                icon={<FaClipboardList />}
+                color="text-green-500"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-white/5 p-6 rounded-2xl border border-white/10">
+                <h3 className="text-lg font-bold mb-4 border-b border-white/10 pb-2">
+                  Seller Status
+                </h3>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-400">Approved</span>
+                    <span className="text-green-500 font-bold">
+                      {
+                        sellers.filter((s) => s.isApproved && !s.isBlocked)
+                          .length
+                      }
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-400">Pending Approval</span>
+                    <span className="text-yellow-500 font-bold">
+                      {sellers.filter((s) => !s.isApproved).length}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-400">Banned/Blocked</span>
+                    <span className="text-red-500 font-bold">
+                      {sellers.filter((s) => s.isBlocked).length}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-white/5 p-6 rounded-2xl border border-white/10 flex items-center justify-center">
+                <p className="text-gray-500 italic">
+                  Sales Analytics Graph (Coming Soon)
+                </p>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {active === "users" && (
+          <Section title="User Directory">
+            <Search value={userSearch} onChange={setUserSearch} />
+            <Table
+              headers={["Name", "Email", "Role", "Joined Date"]}
+              rows={users
+                .filter((u) =>
+                  u.name.toLowerCase().includes(userSearch.toLowerCase())
+                )
+                .map((u) => [
+                  u.name,
+                  u.email,
+                  <span
+                    key={u._id}
+                    className="bg-blue-500/20 text-blue-400 px-2 py-1 rounded text-xs"
                   >
-                    {p.name}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        </header>
+                    {u.role}
+                  </span>,
+                  new Date(u.createdAt || Date.now()).toLocaleDateString(),
+                ])}
+            />
+          </Section>
+        )}
 
-        {/* Dashboard Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 p-6">
-          {[
-            { label: "Total Products", value: products.length },
-            {
-              label: "Low Stock",
-              value: products.filter((p) => p.stock < 10).length,
-            },
-            {
-              label: "Revenue",
-              value:
-                "₹" + products.reduce((acc, p) => acc + Number(p.price), 0),
-            },
-          ].map((card, i) => (
-            <motion.div
-              key={i}
-              whileHover={{ scale: 1.05 }}
-              className="bg-white shadow rounded-lg p-5 border-t-4 border-[#5DE23C]"
-            >
-              <p className="text-gray-500 text-sm">{card.label}</p>
-              <h2 className="text-2xl font-bold text-gray-800 mt-1">
-                {card.value}
-              </h2>
-            </motion.div>
-          ))}
-        </div>
+        {active === "sellers" && (
+          <Section title="Seller Partners">
+            <Search value={sellerSearch} onChange={setSellerSearch} />
+            <div className="overflow-x-auto bg-[#111] rounded-2xl border border-white/10 shadow-2xl">
+              <table className="w-full text-left">
+                <thead className="bg-white/5 text-[#5DE23C] uppercase text-xs tracking-widest">
+                  <tr>
+                    <th className="p-5">Shop Details</th>
+                    <th>Contact Info</th>
+                    <th>Status</th>
+                    <th className="text-center">Control Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {sellers
+                    .filter((s) =>
+                      s.name.toLowerCase().includes(sellerSearch.toLowerCase())
+                    )
+                    .map((s) => (
+                      <tr
+                        key={s._id}
+                        className="hover:bg-white/[0.02] transition-colors group"
+                      >
+                        <td className="p-5">
+                          <div className="font-bold text-lg group-hover:text-[#5DE23C] transition">
+                            {s.name}
+                          </div>
+                          <div className="text-xs text-gray-500 italic">
+                            ID: {s._id.slice(-6)}
+                          </div>
+                        </td>
+                        <td>
+                          <div className="text-sm font-medium">{s.email}</div>
+                          <div className="text-xs text-gray-400">
+                            Verified Partner
+                          </div>
+                        </td>
+                        <td>
+                          <StatusBadge
+                            type={
+                              s.isBlocked
+                                ? "banned"
+                                : s.isApproved
+                                ? "approved"
+                                : "pending"
+                            }
+                          />
+                        </td>
+                        <td className="p-5">
+                          <div className="flex justify-center gap-3">
+                            {!s.isApproved && (
+                              <button
+                                onClick={() => handleApprove(s._id)}
+                                className="flex items-center gap-2 bg-emerald-600/10 text-emerald-500 border border-emerald-600/20 hover:bg-emerald-600 hover:text-white px-4 py-2 rounded-xl transition-all text-sm font-bold"
+                              >
+                                <FaCheck /> Approve
+                              </button>
+                            )}
+                            <button
+                              onClick={() => viewProducts(s._id)}
+                              className="flex items-center gap-2 bg-blue-600/10 text-blue-400 border border-blue-600/20 hover:bg-blue-600 hover:text-white px-4 py-2 rounded-xl transition-all text-sm font-bold"
+                            >
+                              <FaEye /> Products
+                            </button>
+                            <button
+                              onClick={() =>
+                                handleBanToggle(s._id, s.isBlocked)
+                              }
+                              className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all text-sm font-bold border ${
+                                s.isBlocked
+                                  ? "bg-orange-600/10 text-orange-500 border-orange-600/20"
+                                  : "bg-red-600/10 text-red-500 border-red-600/20"
+                              } hover:opacity-80`}
+                            >
+                              {s.isBlocked ? (
+                                <>
+                                  <FaUnlock /> Unban
+                                </>
+                              ) : (
+                                <>
+                                  <FaBan /> Ban
+                                </>
+                              )}
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
+          </Section>
+        )}
 
-        {/* Product Table */}
-        <main className="p-6 overflow-x-auto">
-          <motion.table
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="min-w-full bg-white rounded shadow"
-          >
-            <thead className="border-b bg-[#5DE23C]/10">
-              <tr className="text-left">
-                <th className="p-3">ID</th>
-                <th className="p-3">Name</th>
-                <th className="p-3">Image</th>
-                <th className="p-3">Price</th>
-                <th className="p-3">Old Price</th>
-                <th className="p-3">Stock</th>
-                <th className="p-3">Rating</th>
-                <th className="p-3">Reviews</th>
-                <th className="p-3">Category</th>
-                <th className="p-3">Description</th>
-                <th className="p-3">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((p) => (
-                <motion.tr
-                  key={p.id}
-                  whileHover={{ backgroundColor: "#5DE23C10" }}
-                  className="border-b"
+        {/* MODAL FOR PRODUCTS */}
+        {showProducts && (
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+            <div className="bg-[#111] border border-white/10 p-6 rounded-2xl w-full max-w-3xl max-h-[80vh] overflow-auto">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-bold text-[#5DE23C]">
+                  Seller Products
+                </h2>
+                <button
+                  onClick={() => setShowProducts(false)}
+                  className="text-red-500 hover:text-red-400 font-bold"
                 >
-                  <td className="p-3">{p.id}</td>
-                  <td className="p-3">{p.name}</td>
-                  <td className="p-3">
-                    <img
-                      src={p.image}
-                      alt={p.name}
-                      className="w-16 h-16 object-cover rounded"
-                    />
-                  </td>
-                  <td className="p-3">₹{p.price}</td>
-                  <td className="p-3">₹{p.oldPrice}</td>
-                  <td className="p-3">{p.stock}</td>
-                  <td className="p-3">{p.rating}</td>
-                  <td className="p-3">{p.reviews}</td>
-                  <td className="p-3">{p.category}</td>
-                  <td className="p-3">{p.desc}</td>
-                  <td className="p-3 flex items-center gap-3">
-                    <FaEdit
-                      className="text-[#5DE23C] cursor-pointer hover:scale-110 transition"
-                      onClick={() => handleEditProduct(p)}
-                    />
-                    <FaTrashAlt
-                      onClick={() => handleDelete(p.id)}
-                      className="text-red-500 cursor-pointer hover:scale-110 transition"
-                    />
-                  </td>
-                </motion.tr>
-              ))}
-            </tbody>
-          </motion.table>
-        </main>
+                  Close
+                </button>
+              </div>
+              <Table
+                headers={["Product Name", "Price", "Stock"]}
+                rows={products.map((p) => [
+                  p.name,
+                  `₹${p.price}`,
+                  p.stock > 0 ? (
+                    p.stock
+                  ) : (
+                    <span className="text-red-500">Out of Stock</span>
+                  ),
+                ])}
+              />
+            </div>
+          </div>
+        )}
       </div>
+    </div>
+  );
+}
 
-      {/* Add Product Modal */}
-      {showAdd && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className="bg-white p-6 rounded shadow w-full max-w-sm overflow-y-auto max-h-[90vh]"
-          >
-            <h2 className="text-lg font-semibold mb-4 text-[#5DE23C]">
-              Add New Product
-            </h2>
-            <form onSubmit={handleAddProduct} className="space-y-3">
-              <input
-                type="text"
-                placeholder="Product Name"
-                value={newProduct.name}
-                onChange={(e) =>
-                  setNewProduct({ ...newProduct, name: e.target.value })
-                }
-                className="border px-3 py-2 w-full rounded outline-none"
-                required
-              />
-              <input
-                type="text"
-                placeholder="Image URL"
-                value={newProduct.image}
-                onChange={(e) =>
-                  setNewProduct({ ...newProduct, image: e.target.value })
-                }
-                className="border px-3 py-2 w-full rounded outline-none"
-              />
-              <input
-                type="number"
-                placeholder="Price"
-                value={newProduct.price}
-                onChange={(e) =>
-                  setNewProduct({ ...newProduct, price: e.target.value })
-                }
-                className="border px-3 py-2 w-full rounded outline-none"
-              />
-              <input
-                type="number"
-                placeholder="Old Price"
-                value={newProduct.oldPrice}
-                onChange={(e) =>
-                  setNewProduct({ ...newProduct, oldPrice: e.target.value })
-                }
-                className="border px-3 py-2 w-full rounded outline-none"
-              />
-              <input
-                type="number"
-                placeholder="Stock"
-                value={newProduct.stock}
-                onChange={(e) =>
-                  setNewProduct({ ...newProduct, stock: e.target.value })
-                }
-                className="border px-3 py-2 w-full rounded outline-none"
-              />
-              <input
-                type="number"
-                placeholder="Rating"
-                value={newProduct.rating}
-                onChange={(e) =>
-                  setNewProduct({ ...newProduct, rating: e.target.value })
-                }
-                className="border px-3 py-2 w-full rounded outline-none"
-              />
-              <input
-                type="number"
-                placeholder="Reviews"
-                value={newProduct.reviews}
-                onChange={(e) =>
-                  setNewProduct({ ...newProduct, reviews: e.target.value })
-                }
-                className="border px-3 py-2 w-full rounded outline-none"
-              />
-              <select
-                value={newProduct.category}
-                onChange={(e) =>
-                  setNewProduct({ ...newProduct, category: e.target.value })
-                }
-                className="border px-3 py-2 w-full rounded outline-none"
-                required
-              >
-                <option value="">Select Category</option>
-                {categories.map((cat, i) => (
-                  <option key={i} value={cat}>
-                    {cat}
-                  </option>
-                ))}
-              </select>
-              <textarea
-                placeholder="Description"
-                value={newProduct.desc}
-                onChange={(e) =>
-                  setNewProduct({ ...newProduct, desc: e.target.value })
-                }
-                className="border px-3 py-2 w-full rounded outline-none"
-              ></textarea>
-              <button
-                type="submit"
-                className="bg-[#5DE23C] text-white px-4 py-2 rounded w-full"
-              >
-                Add Product
-              </button>
-            </form>
-          </motion.div>
-        </div>
-      )}
+/* ================= HELPER COMPONENTS ================= */
 
-      {/* Edit Product Modal */}
-      {editingProduct && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className="bg-white p-6 rounded shadow w-full max-w-sm overflow-y-auto max-h-[90vh]"
-          >
-            <h2 className="text-lg font-semibold mb-4 text-[#5DE23C]">
-              Edit Product
-            </h2>
-            <form onSubmit={handleUpdateProduct} className="space-y-3">
-              <input
-                type="text"
-                placeholder="Product Name"
-                value={editingProduct.name}
-                onChange={(e) =>
-                  setEditingProduct({
-                    ...editingProduct,
-                    name: e.target.value,
-                  })
-                }
-                className="border px-3 py-2 w-full rounded outline-none"
-                required
-              />
-              <input
-                type="text"
-                placeholder="Image URL"
-                value={editingProduct.image}
-                onChange={(e) =>
-                  setEditingProduct({
-                    ...editingProduct,
-                    image: e.target.value,
-                  })
-                }
-                className="border px-3 py-2 w-full rounded outline-none"
-              />
-              <input
-                type="number"
-                placeholder="Price"
-                value={editingProduct.price}
-                onChange={(e) =>
-                  setEditingProduct({
-                    ...editingProduct,
-                    price: e.target.value,
-                  })
-                }
-                className="border px-3 py-2 w-full rounded outline-none"
-              />
-              <input
-                type="number"
-                placeholder="Old Price"
-                value={editingProduct.oldPrice}
-                onChange={(e) =>
-                  setEditingProduct({
-                    ...editingProduct,
-                    oldPrice: e.target.value,
-                  })
-                }
-                className="border px-3 py-2 w-full rounded outline-none"
-              />
-              <input
-                type="number"
-                placeholder="Stock"
-                value={editingProduct.stock}
-                onChange={(e) =>
-                  setEditingProduct({
-                    ...editingProduct,
-                    stock: e.target.value,
-                  })
-                }
-                className="border px-3 py-2 w-full rounded outline-none"
-              />
-              <input
-                type="number"
-                placeholder="Rating"
-                value={editingProduct.rating}
-                onChange={(e) =>
-                  setEditingProduct({
-                    ...editingProduct,
-                    rating: e.target.value,
-                  })
-                }
-                className="border px-3 py-2 w-full rounded outline-none"
-              />
-              <input
-                type="number"
-                placeholder="Reviews"
-                value={editingProduct.reviews}
-                onChange={(e) =>
-                  setEditingProduct({
-                    ...editingProduct,
-                    reviews: e.target.value,
-                  })
-                }
-                className="border px-3 py-2 w-full rounded outline-none"
-              />
-              <select
-                value={editingProduct.category}
-                onChange={(e) =>
-                  setEditingProduct({
-                    ...editingProduct,
-                    category: e.target.value,
-                  })
-                }
-                className="border px-3 py-2 w-full rounded outline-none"
-                required
-              >
-                <option value="">Select Category</option>
-                {categories.map((cat, i) => (
-                  <option key={i} value={cat}>
-                    {cat}
-                  </option>
+function SidebarItem({ icon, label, active, setActive, danger, collapsed }) {
+  const isSelected = active === (label ? label.toLowerCase() : "");
+  return (
+    <div
+      onClick={() => setActive && setActive(label.toLowerCase())}
+      className={`flex items-center gap-4 px-6 py-4 cursor-pointer transition-all ${
+        danger
+          ? "text-red-500 hover:bg-red-500/10"
+          : isSelected
+          ? "text-[#5DE23C] bg-[#5DE23C]/10 border-r-4 border-[#5DE23C]"
+          : "text-gray-400 hover:bg-white/5"
+      }`}
+    >
+      <span className="text-lg">{icon}</span>
+      {!collapsed && <span className="font-medium">{label}</span>}
+    </div>
+  );
+}
+
+function Section({ title, children }) {
+  return (
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+      <h2 className="text-2xl font-bold mb-6 text-white border-b border-white/10 pb-2">
+        {title}
+      </h2>
+      {children}
+    </motion.div>
+  );
+}
+
+// Fixed: Only one StatusBadge declaration allowed
+function StatusBadge({ type }) {
+  const config = {
+    approved: "bg-green-500/10 text-green-500 border-green-500/20",
+    pending: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20",
+    banned: "bg-red-500/10 text-red-500 border-red-500/20",
+  };
+  return (
+    <span
+      className={`px-3 py-1 rounded-full text-[10px] uppercase font-bold tracking-wider border ${
+        config[type] || config.pending
+      }`}
+    >
+      {type}
+    </span>
+  );
+}
+
+function StatsCard({ label, value, icon, color }) {
+  return (
+    <div className="bg-white/5 p-6 rounded-2xl border border-white/10 hover:border-[#5DE23C]/50 transition group">
+      <div
+        className={`text-3xl mb-4 ${color} group-hover:scale-110 transition-transform`}
+      >
+        {icon}
+      </div>
+      <h3 className="text-gray-400 text-sm font-medium">{label}</h3>
+      <p className="text-3xl font-bold mt-1 text-white">{value}</p>
+    </div>
+  );
+}
+
+function Table({ headers, rows }) {
+  return (
+    <div className="overflow-x-auto bg-white/5 rounded-2xl border border-white/10">
+      <table className="w-full text-left">
+        <thead className="bg-white/5 text-[#5DE23C] uppercase text-[10px] tracking-widest">
+          <tr>
+            {headers.map((h, i) => (
+              <th key={i} className="p-4">
+                {h}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-white/5">
+          {rows.length > 0 ? (
+            rows.map((r, i) => (
+              <tr key={i} className="hover:bg-white/5 transition">
+                {r.map((c, j) => (
+                  <td key={j} className="p-4 text-sm text-gray-300">
+                    {c}
+                  </td>
                 ))}
-              </select>
-              <textarea
-                placeholder="Description"
-                value={editingProduct.desc}
-                onChange={(e) =>
-                  setEditingProduct({
-                    ...editingProduct,
-                    desc: e.target.value,
-                  })
-                }
-                className="border px-3 py-2 w-full rounded outline-none"
-              ></textarea>
-              <button
-                type="submit"
-                className="bg-[#5DE23C] text-white px-4 py-2 rounded w-full"
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td
+                colSpan={headers.length}
+                className="p-10 text-center text-gray-500"
               >
-                Update Product
-              </button>
-            </form>
-          </motion.div>
-        </div>
-      )}
+                No data found
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function Search({ value, onChange }) {
+  return (
+    <div className="flex items-center gap-3 mb-6 bg-white/5 px-4 py-3 rounded-xl border border-white/10 focus-within:border-[#5DE23C] transition">
+      <FaSearch className="text-gray-500" />
+      <input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder="Search everything..."
+        className="bg-transparent outline-none flex-1 text-sm text-white"
+      />
     </div>
   );
 }
