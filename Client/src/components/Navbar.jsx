@@ -1,153 +1,148 @@
-import React, { useState, useContext } from "react";
-import { Link } from "react-router-dom";
-import { StoreContext } from "../context/StoreContext";
+import React, { useState } from "react";
 import {
-  Bars3Icon,
-  XMarkIcon,
-  HeartIcon,
-  ShoppingCartIcon,
-  ChevronDownIcon,
-} from "@heroicons/react/24/outline";
+  ShoppingCart,
+  Search,
+  Heart,
+  Menu,
+  X,
+  User,
+  Cpu,
+  Sparkles,
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
-export default function Navbar() {
-  const [open, setOpen] = useState(false);
-  const [loginDropdown, setLoginDropdown] = useState(false);
-  const [sellerDropdown, setSellerDropdown] = useState(false);
+const Navbar = () => {
+  const [isOpen, setIsOpen] = useState(false);
 
-  const { isLoggedIn, isSeller, logout, cartCount } = useContext(StoreContext);
-
-  const navLinks = ["Home", "Product", "Categories", "About Us", "Contact"];
+  const navLinks = [
+    { name: "Explore", href: "#" },
+    { name: "Laptops", href: "#" },
+    { name: "Accessories", href: "#" },
+    { name: "Gaming Zone", href: "#", new: true },
+    { name: "Support", href: "#" },
+  ];
 
   return (
-    <nav className="fixed w-full z-50 bg-white/50 backdrop-blur-md border-b border-gray-100 shadow-md">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          <Link to="/" className="text-2xl font-extrabold text-[#5DE23C]">
-            Electro
-          </Link>
+    <nav className="sticky top-0 z-50 bg-[#0f172a]/90 backdrop-blur-md border-b border-slate-700 shadow-xl">
+      <div className="max-w-7xl mx-auto flex justify-between items-center px-4 md:px-8 py-4">
+        {/* Logo Section - Indigo to Cyan Gradient */}
+        <div className="flex items-center gap-2 group cursor-pointer">
+          <div className="bg-gradient-to-br from-indigo-500 to-cyan-400 p-2 rounded-xl shadow-[0_0_15px_rgba(34,211,238,0.4)] group-hover:shadow-cyan-400/60 transition-all">
+            <Cpu size={22} className="text-white" />
+          </div>
+          <h1 className="text-2xl font-black tracking-widest text-white uppercase">
+            Tech<span className="text-cyan-400">Nex</span>
+          </h1>
+        </div>
 
-          {/* ================= DESKTOP MENU ================= */}
-          <div className="hidden md:flex items-center space-x-6">
-            {navLinks.map((link) => (
-              <Link
-                key={link}
-                to={`/${link.toLowerCase().replace(" ", "")}`}
-                className="text-gray-700 hover:text-[#5DE23C] font-medium"
+        {/* Desktop Navigation - Glassy Hover */}
+        <ul className="hidden lg:flex gap-10 font-medium text-slate-300">
+          {navLinks.map((link) => (
+            <li key={link.name} className="relative group">
+              <a
+                href={link.href}
+                className="hover:text-cyan-300 transition-all flex items-center gap-1.5"
               >
-                {link}
-              </Link>
-            ))}
-
-            {/* ❤️ Wishlist + 🛒 Cart ALWAYS VISIBLE */}
-            <div className="flex items-center space-x-4 ml-6">
-              <HeartIcon className="h-6 w-6 text-[#5DE23C]" />
-
-              <Link to="/cart" className="relative">
-                <ShoppingCartIcon className="h-6 w-6 text-[#5DE23C]" />
-
-                {/* 🔥 Cart count ONLY when logged in */}
-                {isLoggedIn && cartCount > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full">
-                    {cartCount}
-                  </span>
+                {link.name}
+                {link.new && (
+                  <Sparkles
+                    size={14}
+                    className="text-yellow-400 animate-pulse"
+                  />
                 )}
-              </Link>
-            </div>
+              </a>
+              {/* Animated Underline */}
+              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-cyan-400 to-indigo-500 transition-all duration-300 group-hover:w-full"></span>
+            </li>
+          ))}
+        </ul>
 
-            {/* ================= LOGIN DROPDOWN ================= */}
-            <div className="relative">
-              <button
-                onClick={() => setLoginDropdown(!loginDropdown)}
-                className="px-4 py-2 bg-[#5DE23C] text-black rounded-md font-semibold flex items-center"
-              >
-                Login
-                <ChevronDownIcon className="ml-2 h-4 w-4" />
-              </button>
-
-              {loginDropdown && (
-                <div className="absolute right-0 mt-2 w-48 bg-white border rounded-md shadow-lg z-10">
-                  <Link
-                    to="/login"
-                    className="block px-4 py-2 hover:bg-gray-100"
-                    onClick={() => setLoginDropdown(false)}
-                  >
-                    Login
-                  </Link>
-
-                  <Link
-                    to="/profile"
-                    className="block px-4 py-2 hover:bg-gray-100"
-                    onClick={() => setLoginDropdown(false)}
-                  >
-                    My Profile
-                  </Link>
-
-                  <button
-                    className="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 rounded-b-md"
-                    onClick={() => {
-                      logout(); // ✅ call your logout function here
-                      setLoginDropdown(false); // close the dropdown
-                    }}
-                  >
-                    Logout
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {/* ================= SELLER DROPDOWN ================= */}
-
-            <div className="relative">
-              <button
-                onClick={() => setSellerDropdown(!sellerDropdown)}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md flex items-center"
-              >
-                Seller
-                <ChevronDownIcon className="ml-2 h-4 w-4" />
-              </button>
-
-              {sellerDropdown && (
-                <div className="absolute right-0 mt-2 w-48 bg-white border rounded-md shadow-lg z-10">
-                  <Link
-                    to="/seller-login"
-                    className="block px-4 py-2 hover:bg-gray-100"
-                    onClick={() => setSellerDropdown(false)}
-                  >
-                    Seller Login
-                  </Link>
-
-                  <Link
-                    to="/seller-dashboard"
-                    className="block px-4 py-2 hover:bg-gray-100"
-                    onClick={() => setSellerDropdown(false)}
-                  >
-                    Seller Dashboard
-                  </Link>
-
-                  <button
-                    className="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50"
-                    onClick={() => {
-                      handleLogout();
-                      setSellerDropdown(false); // close the dropdown
-                    }}
-                  >
-                    Logout
-                  </button>
-                </div>
-              )}
-            </div>
+        {/* Right Actions */}
+        <div className="flex items-center gap-4">
+          {/* Neon Search Bar */}
+          <div className="hidden md:flex items-center bg-slate-800/50 border border-slate-600 focus-within:border-cyan-400 px-4 py-2 rounded-lg w-56 transition-all duration-300 shadow-inner">
+            <Search size={18} className="text-slate-400" />
+            <input
+              type="text"
+              placeholder="Search tech..."
+              className="bg-transparent outline-none ml-2 w-full text-sm text-white placeholder-slate-500"
+            />
           </div>
 
-          {/* ================= MOBILE MENU BUTTON ================= */}
-          <button onClick={() => setOpen(!open)} className="md:hidden">
-            {open ? (
-              <XMarkIcon className="h-6 w-6" />
-            ) : (
-              <Bars3Icon className="h-6 w-6" />
-            )}
-          </button>
+          <div className="flex items-center gap-4 text-slate-300">
+            {/* Wishlist */}
+            <motion.div
+              whileHover={{ scale: 1.2, color: "#22d3ee" }}
+              className="relative cursor-pointer"
+            >
+              <Heart size={20} />
+              <span className="absolute -top-2 -right-2 text-[9px] bg-indigo-600 text-white h-4 w-4 flex items-center justify-center rounded-full border border-slate-900 font-bold">
+                5
+              </span>
+            </motion.div>
+
+            {/* Cart with Glow */}
+            <motion.div
+              whileHover={{ scale: 1.2, color: "#22d3ee" }}
+              className="relative cursor-pointer"
+            >
+              <ShoppingCart size={20} />
+              <span className="absolute -top-2 -right-2 text-[9px] bg-cyan-500 text-slate-900 h-4 w-4 flex items-center justify-center rounded-full border border-slate-900 font-bold">
+                2
+              </span>
+            </motion.div>
+
+            {/* Profile Button */}
+            <button className="hidden sm:flex items-center gap-2 bg-slate-800 hover:bg-slate-700 border border-slate-600 px-3 py-1.5 rounded-lg transition-all">
+              <User size={18} className="text-cyan-400" />
+              <span className="text-sm font-semibold">Account</span>
+            </button>
+
+            {/* Mobile Menu Icon */}
+            <div
+              className="lg:hidden text-white cursor-pointer"
+              onClick={() => setIsOpen(!isOpen)}
+            >
+              {isOpen ? <X size={28} /> : <Menu size={28} />}
+            </div>
+          </div>
         </div>
       </div>
+
+      {/* Mobile Sidebar */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            transition={{ type: "spring", stiffness: 100, damping: 20 }}
+            className="fixed top-0 right-0 h-screen w-3/4 bg-slate-900 z-[60] shadow-2xl lg:hidden p-8 border-l border-slate-700"
+          >
+            <div className="flex justify-between items-center mb-10">
+              <h2 className="text-xl font-bold text-white">Menu</h2>
+              <X onClick={() => setIsOpen(false)} className="text-slate-400" />
+            </div>
+            <div className="flex flex-col gap-8 text-lg text-slate-300">
+              {navLinks.map((link) => (
+                <a
+                  key={link.name}
+                  href={link.href}
+                  className="hover:text-cyan-400 transition-colors"
+                >
+                  {link.name}
+                </a>
+              ))}
+              <hr className="border-slate-700" />
+              <button className="bg-gradient-to-r from-indigo-600 to-cyan-500 text-white py-3 rounded-xl font-bold shadow-lg shadow-cyan-500/20">
+                Join Community
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </nav>
   );
-}
+};
+
+export default Navbar;
