@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   ShoppingCart,
   Search,
@@ -13,6 +14,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
 
   const navLinks = [
     { name: "Explore", href: "#" },
@@ -93,7 +95,10 @@ const Navbar = () => {
             </motion.div>
 
             {/* Profile Button */}
-            <button className="hidden sm:flex items-center gap-2 bg-slate-800 hover:bg-slate-700 border border-slate-600 px-3 py-1.5 rounded-lg transition-all">
+            <button
+              onClick={() => navigate("/login")}
+              className="hidden sm:flex items-center gap-2 bg-slate-800 hover:bg-slate-700 border border-slate-600 px-3 py-1.5 rounded-lg transition-all"
+            >
               <User size={18} className="text-cyan-400" />
               <span className="text-sm font-semibold">Account</span>
             </button>
