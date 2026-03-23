@@ -1,6 +1,7 @@
 import React from "react";
 import { Heart, ShoppingCart, Star, Eye, Zap } from "lucide-react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 const products = [
   {
@@ -42,6 +43,7 @@ const products = [
 ];
 
 const Products = () => {
+  const navigate = useNavigate();
   return (
     <section className="relative bg-[#0f172a] py-24 px-6 md:px-10 overflow-hidden">
       {/* Decorative background glow */}
@@ -103,6 +105,7 @@ const Products = () => {
                       <ShoppingCart size={20} />
                     </motion.button>
                     <motion.button
+                      onClick={() => navigate(`/product/${product.id}`)}
                       whileHover={{ scale: 1.1 }}
                       className="p-3 bg-slate-900 text-white rounded-full shadow-xl border border-slate-700"
                     >

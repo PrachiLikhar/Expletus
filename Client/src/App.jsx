@@ -11,6 +11,7 @@ import NewArrivals from "./pages/NewArrivals";
 import HotDeals from "./pages/HotDeals";
 import Support from "./pages/Support";
 import TrackOrder from "./pages/TrackOrder";
+import ProductDetails from "./pages/ProductDetails";
 function App() {
   return (
     <BrowserRouter>
@@ -25,6 +26,7 @@ function App() {
         <Route path="/deals" element={<HotDeals />} />
         <Route path="/support" element={<Support />} />
         <Route path="/track-order" element={<TrackOrder />} />
+        <Route path="/product/:id" element={<ProductDetails />} />
       </Routes>
     </BrowserRouter>
   );
