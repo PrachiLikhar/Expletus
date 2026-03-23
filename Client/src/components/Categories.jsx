@@ -9,6 +9,7 @@ import {
   ArrowUpRight,
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 const categories = [
   {
@@ -50,6 +51,7 @@ const categories = [
 ];
 
 const Categories = () => {
+  const navigate = useNavigate();
   return (
     <section className="relative bg-[#0f172a] py-24 px-6 md:px-10 overflow-hidden">
       {/* Background Decorative Glow */}
@@ -91,6 +93,7 @@ const Categories = () => {
           {categories.map((cat, index) => (
             <motion.div
               key={index}
+              onClick={() => navigate(`/explore?category=${cat.name}`)}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
