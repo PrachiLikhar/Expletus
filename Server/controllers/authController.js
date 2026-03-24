@@ -1,108 +1,36 @@
+import express from "express";
+import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import User from "../models/userModel.js";
 
-export const registerUser = async (req, res) => {
-  try {
-    const { name, email, password } = req.body;
+const router = express.Router();
 
-    const userExists = await User.findOne({ email });
-    if (userExists) return res.status(400).json({ message: "User already exists" });
+// REGISTER
+router.post("/register", async (req, res) => {
+  const { name, email, password } = req.body;
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+  const hashed = await bcrypt.hash(password, 10);
 
-    const newUser = await User.create({
-      name,
-      email,
-      password: hashedPassword,
-    });
+  const user = await User.create({ name, email, password: hashed });
 
-    res.status(201).json({ message: "Signup successful", user: newUser });
+  res.json(user);
+});
 
-  } catch (error) {
-    res.status(500).json({ message: "Signup failed", error });
-  }
-};
+// LOGIN
+router.post("/login", async (req, res) => {
+  const { email, password } = req.body;
 
-export const loginUser = async (req, res) => {
-  try {
-    const { email, password } = req.body;
+  const user = await User.findOne({ email });
 
-    const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ message: "User not found" });
+  if (!user) return res.status(400).json({ msg: "User not found" });
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ message: "Invalid password" });
+  const isMatch = await bcrypt.compare(password, user.password);
 
-    const token = jwt.sign(
-      { id: user._id, email: user.email },
-      process.env.JWT_SECRET,
-      { expiresIn: "7d" }
-    );
+  if (!isMatch) return res.status(400).json({ msg: "Wrong password" });
 
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: false,
-      sameSite: "lax",
-    });
+  const token = jwt.sign({ id: user._id }, "secret");
 
-    res.json({
-      message: "Login successful",
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-      }
-    });
+  res.json({ token, user });
+});
 
-  } catch (error) {
-    res.status(500).json({ message: "Login failed", error });
-  }
-};
-export const logout = (req, res) => {
-  try {
-    res.clearCookie("token", {
-      httpOnly: true,
-      sameSite: "lax",   // same as login
-      secure: false,    // localhost
-      path: "/",        // MUST
-    });
-
-    return res.status(200).json({
-      success: true,
-      message: "Logged out successfully",
-    });
-  } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: "Logout failed",
-    });
-  }
-};
-
-
-export const getProfile = async (req, res) => {
-  try {
-    res.json({
-      id: req.user._id,
-      name: req.user.name,
-      email: req.user.email,
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-// ✅ GET ALL REGISTERED USERS
-export const getAllUsers = async (req, res) => {
-  try {
-    const users = await User.find().select("-password"); // hide password
-    res.status(200).json(users);
-  } catch (error) {
-    res.status(500).json({
-      message: "Server Error",
-      error: error.message,
-    });
-  }
-};
-
+export default router;
