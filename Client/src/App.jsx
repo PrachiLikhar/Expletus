@@ -1,32 +1,30 @@
-import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-
-import Home from "./pages/Home";
 import Login from "./pages/Login";
-import Signup from "./pages/Signup";
-import Wishlist from "./pages/Wishlist";
+import Register from "./pages/Register";
+import Profile from "./pages/Profile";
+import PrivateRoute from "./components/PrivateRoute";
+import Navbar from "./components/Navbar";
+import Home from "./pages/Home";
 import Cart from "./pages/Cart";
-import Explore from "./pages/Explore";
-import NewArrivals from "./pages/NewArrivals";
-import HotDeals from "./pages/HotDeals";
-import Support from "./pages/Support";
-import TrackOrder from "./pages/TrackOrder";
-import ProductDetails from "./pages/ProductDetails";
+
 function App() {
   return (
     <BrowserRouter>
+      <Navbar />
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/wishlist" element={<Wishlist />} />
+        <Route path="/" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route
+          path="/profile"
+          element={
+            <PrivateRoute>
+              <Profile />
+            </PrivateRoute>
+          }
+        />
+        <Route path="/home" element={<Home />} />
         <Route path="/cart" element={<Cart />} />
-        <Route path="/explore" element={<Explore />} />
-        <Route path="/new" element={<NewArrivals />} />
-        <Route path="/deals" element={<HotDeals />} />
-        <Route path="/support" element={<Support />} />
-        <Route path="/track-order" element={<TrackOrder />} />
-        <Route path="/product/:id" element={<ProductDetails />} />
       </Routes>
     </BrowserRouter>
   );
