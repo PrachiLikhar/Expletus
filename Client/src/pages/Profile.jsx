@@ -1,30 +1,3 @@
-// import React, { useEffect, useState } from "react";
-// import API from "../services/api";
-
-// const Profile = () => {
-//   const [user, setUser] = useState(null);
-
-//   useEffect(() => {
-//     API.get("/auth/profile")
-//       .then((res) => setUser(res.data.user))
-//       .catch(() => alert("Not logged in"));
-//   }, []);
-
-//   const handleLogout = async () => {
-//     await API.post("/auth/logout");
-//     alert("Logged out");
-//     window.location.href = "/";
-//   };
-
-//   return (
-//     <div>
-//       {user ? <h1>Welcome {user.role}</h1> : <h1>Please login</h1>}
-//       <button onClick={handleLogout}>Logout</button>
-//     </div>
-//   );
-// };
-
-// export default Profile;
 import React, { useEffect, useState } from "react";
 import API from "../services/api";
 import { User, LogOut, ShieldCheck, Mail, Loader2 } from "lucide-react";

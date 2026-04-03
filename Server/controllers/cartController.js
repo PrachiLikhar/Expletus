@@ -34,3 +34,39 @@ export const getCart = async (req, res) => {
   const cart = await Cart.findOne({ user: req.user.id }).populate("items.product");
   res.json(cart);
 };
+
+//remove cart
+export const removeFromCart = async (req, res) => {
+  const { productId } = req.body;
+
+  const cart = await Cart.findOne({ user: req.user.id });
+
+  cart.items = cart.items.filter(
+    (item) => item.product.toString() !== productId
+  );
+
+  await cart.save();
+
+  res.json(cart);
+};
+
+//updatequantity
+export const updateQuantity = async (req, res) => {
+  const { productId, action } = req.body;
+
+  const cart = await Cart.findOne({ user: req.user.id });
+
+  const item = cart.items.find(
+    (item) => item.product.toString() === productId
+  );
+
+  if (action === "inc") {
+    item.quantity += 1;
+  } else if (action === "dec" && item.quantity > 1) {
+    item.quantity -= 1;
+  }
+
+  await cart.save();
+
+  res.json(cart);
+};

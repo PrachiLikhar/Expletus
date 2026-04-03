@@ -53,6 +53,21 @@ const Cart = () => {
         setLoading(false);
       });
   }, []);
+  const removeItem = async (id) => {
+    await API.post("/cart/remove", { productId: id });
+    window.location.reload();
+  };
+
+  const updateQty = async (id, action) => {
+    await API.post("/cart/update", { productId: id, action });
+    window.location.reload();
+  };
+
+  const placeOrder = async () => {
+    await API.post("/orders");
+    alert("Order placed!");
+    window.location.reload();
+  };
 
   // Calculate Subtotal
   const subtotal = cart.reduce(
@@ -109,17 +124,26 @@ const Cart = () => {
 
                     <div className="flex items-center gap-4 mt-3">
                       <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden">
-                        <button className="p-1 px-2 hover:bg-gray-100">
+                        <button
+                          onClick={() => updateQty(item.product._id, "dec")}
+                          className="p-1 px-2 hover:bg-gray-100"
+                        >
                           <Minus size={16} />
                         </button>
                         <span className="px-4 font-semibold text-gray-700">
                           {item.quantity}
                         </span>
-                        <button className="p-1 px-2 hover:bg-gray-100">
+                        <button
+                          onClick={() => updateQty(item.product._id, "inc")}
+                          className="p-1 px-2 hover:bg-gray-100"
+                        >
                           <Plus size={16} />
                         </button>
                       </div>
-                      <button className="text-red-500 hover:bg-red-50 p-2 rounded-lg transition-colors">
+                      <button
+                        onClick={() => removeItem(item.product._id)}
+                        className="text-red-500 hover:bg-red-50 p-2 rounded-lg transition-colors"
+                      >
                         <Trash2 size={18} />
                       </button>
                     </div>
@@ -159,7 +183,10 @@ const Cart = () => {
                   </span>
                 </div>
 
-                <button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-indigo-200 active:scale-95">
+                <button
+                  onClick={placeOrder}
+                  className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-indigo-200 active:scale-95"
+                >
                   <CreditCard size={20} />
                   Proceed to Checkout
                   <ChevronRight size={18} />

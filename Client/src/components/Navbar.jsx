@@ -23,6 +23,7 @@ import {
   HomeIcon,
   ShieldX,
   CarTaxiFront,
+  ListOrderedIcon,
 } from "lucide-react";
 
 const Navbar = () => {
@@ -37,7 +38,8 @@ const Navbar = () => {
     { name: "Login", path: "/", icon: <LogIn size={18} /> },
     { name: "Register", path: "/register", icon: <UserPlus size={18} /> },
     { name: "Profile", path: "/profile", icon: <User size={18} /> },
-    { name: "Cart", path: "cart", icon: <CarTaxiFront size={18} /> },
+    { name: "Cart", path: "/cart", icon: <CarTaxiFront size={18} /> },
+    { name: "orders", path: "/orders", icon: <ListOrderedIcon size={18} /> },
   ];
 
   return (
