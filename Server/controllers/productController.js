@@ -1,12 +1,24 @@
 import Product from "../models/Product.js";
 
 // ADD PRODUCT
+// export const addProduct = async (req, res) => {
+//   try {
+//     const product = await Product.create(req.body);
+//     res.json(product);
+//   } catch (err) {
+//     res.status(500).json({ error: err.message });
+//   }
+// };
 export const addProduct = async (req, res) => {
   try {
+    // console.log("BODY:", req.body); // debug
+
     const product = await Product.create(req.body);
-    res.json(product);
+
+    res.status(201).json(product);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("ERROR:", err);
+    res.status(500).json({ message: err.message });
   }
 };
 // export const addProduct = async (req, res) => {

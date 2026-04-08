@@ -178,6 +178,7 @@ const Home = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-24">
         {/* 4. CATEGORIES */}
+
         <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
           <div className="space-y-2">
             <h2 className="text-4xl font-black text-gray-900 tracking-tight">
@@ -188,7 +189,14 @@ const Home = () => {
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
-            {["All Products", "Audio", "Smartwatch", "Laptops"].map((cat) => (
+            {[
+              "All Products",
+              "Mobile",
+              "Laptop",
+              "Computer",
+              "Audio Device",
+              "Camera",
+            ].map((cat) => (
               <button
                 key={cat}
                 onClick={() => setActiveCategory(cat)}

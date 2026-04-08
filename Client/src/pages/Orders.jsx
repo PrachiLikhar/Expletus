@@ -1,29 +1,3 @@
-// import React, { useEffect, useState } from "react";
-// import API from "../services/api";
-
-// const Orders = () => {
-//   const [orders, setOrders] = useState([]);
-
-//   useEffect(() => {
-//     API.get("/orders").then((res) => setOrders(res.data));
-//   }, []);
-
-//   return (
-//     <div>
-//       <h1>Your Orders</h1>
-
-//       {orders.map((o) => (
-//         <div key={o._id}>
-//           <h3>Order ID: {o._id}</h3>
-//           <p>Status: {o.status}</p>
-//           <p>Total: ₹{o.totalAmount}</p>
-//         </div>
-//       ))}
-//     </div>
-//   );
-// };
-
-// export default Orders;
 import React, { useEffect, useState } from "react";
 import API from "../services/api";
 import {
@@ -114,7 +88,11 @@ const Orders = () => {
                           Order Placed
                         </p>
                         <p className="text-sm font-medium text-gray-700">
-                          March 31, 2026
+                          {new Date(o.createdAt).toLocaleDateString("en-IN", {
+                            day: "numeric",
+                            month: "long",
+                            year: "numeric",
+                          })}
                         </p>
                       </div>
                       <div>
