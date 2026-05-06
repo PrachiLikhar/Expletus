@@ -7,6 +7,7 @@ import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
 import Cart from "./pages/Cart";
 import Orders from "./pages/Orders";
+import Wishlist from "./pages/Wishlist";
 
 import AdminDashboard from "./pages/AdminDashboard";
 import EmployeeDashboard from "./pages/EmployeeDashboard";
@@ -30,7 +31,7 @@ function App() {
         <Route path="/home" element={<Home />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/orders" element={<Orders />} />
-
+        <Route path="/wishlist" element={<Wishlist />} />
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
         <Route path="/employee-dashboard" element={<EmployeeDashboard />} />
       </Routes>

@@ -77,6 +77,24 @@ const Home = () => {
       <div className="h-6 bg-gray-200 rounded w-3/4"></div>
     </div>
   );
+  // product add whislist
+  const addToWishlist = (product) => {
+    let wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
+
+    // check if already exists
+    const exists = wishlist.find((item) => item._id === product._id);
+
+    if (exists) {
+      alert("Already in wishlist ❤️");
+      return;
+    }
+
+    wishlist.push(product);
+
+    localStorage.setItem("wishlist", JSON.stringify(wishlist));
+
+    alert("Added to wishlist ❤️");
+  };
 
   return (
     <div className="bg-[#fcfcfd] min-h-screen pb-20 text-gray-900 font-sans">
@@ -233,7 +251,10 @@ const Home = () => {
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                     />
                     <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
-                      <button className="p-4 bg-white rounded-2xl text-gray-900 hover:bg-gray-900 hover:text-white transition-all shadow-xl">
+                      <button
+                        className="p-4 bg-white rounded-2xl text-gray-900 hover:bg-gray-900 hover:text-white transition-all shadow-xl"
+                        onClick={() => addToWishlist(p)}
+                      >
                         <Heart size={20} />
                       </button>
                     </div>
